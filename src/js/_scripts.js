@@ -872,7 +872,7 @@ class WebasystStories {
         previewsSelector: '[data-stories-previews="1"]',
         storySelector: '[data-stories-groups="1"]',
         timer: 1,
-        timerSpeed: '1',
+        timerSpeed: '10',
         isMobile: 0,
     }
     new WebasystStories(webasystStoriesSettings)
