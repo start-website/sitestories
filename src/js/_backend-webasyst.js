@@ -2,313 +2,228 @@ var app = new Vue({
     delimiters: ['%%', '%%'],
     el: '.start',
     data: {
-        group_count: Number(document.querySelector('#group-count').value),
         plugin_url: document.querySelector('#plugin_url').value,
-        group_settings: [],
-        custom_css: document.querySelector('#custom_css').value,
-        custom_css_instruction: false
-    },
-    methods: {       
-        addGroup() {
-            this.group_count++;
-            this.group_settings.push({
-                arrows_nav: false,
-                buttons_switch_pos: '',
-                buttons_switch_view: '',
-                arrows_switch_view: '',
-                slider_width: '',
-                slider_height: '500',
-                slider_min_height: '300',
-                font_size: '',
-                margin_top: '',
-                margin_right: '',
-                margin_left: '',
-                margin_botton: '',
-                border_radius: '',
-                buttons_nav: false,
-                auto_play: false,
-                auto_play_speed: '',
-                slide_count: 1,
-                slide_content: [],
-                slide_active_num: 1
-            })
-  
-            for (let i = 0; i < 1; i++) {
-                this.group_settings[this.group_settings.length - 1].slide_content.push({
-                    active_slide: 'true',
-                    slide_type: 'info-1',
-                    product_title: '',
-                    product_description: '',
-                    product_price: '',
-                    product_price_new: '',
-                    product_price_new_color: '',
-                    product_price_color: '',
-                    price_blacken: '',
-                    timer: '',
-                    timer_color: '',
-                    label_text: '',
-                    label_text_color: '',
-                    label_background: '',
-                    star_color: '',
-                    star_value: '',
-                    video_iframe: '',
-                    product_img_file_jpg: '',
-                    product_img_file_webp: '',
-                    product_link: '',
-                    title: '',
-                    title_color: '',
-                    title_animation: false,
-                    text_accent: '',
-                    text_accent_color: '',
-                    text: '',
-                    text_color: '',
-                    background_color: '',
-                    background_img_file: '',
-                    background_webp_img_file: '',
-                    background_video_file: '',
-                    button_link_1: '',
-                    button_text_1: '',
-                    button_class_1: '',
-                    button_link_2: '',
-                    button_text_2: '',
-                    button_class_2: '',
-                    color_elems_navigation: '',
-                    slide_effect: '',
-                })
-            }
-        },
-        delGroup() {
-            if (this.group_count > 1) {
-                this.group_count--;
-                this.group_settings.pop();
-            }
-        },
-        addSlide(e, index_group) {
-            this.group_settings[index_group].slide_count++;
+        groups_count: Number(document.querySelector('#groups_count').value),
+        url: document.querySelector('#url').value,
+        custom_css_instruction: false,
+        loading: true,
+        button_save_disabled: false,
+        error_image: false,
+        error_video: false,
 
-            this.group_settings[index_group].slide_content.push({
-                active_slide: 'true',
-                    slide_type: 'info-1',
-                    product_title: '',
-                    product_description: '',
-                    product_price: '',
-                    product_price_new: '',
-                    product_price_new_color: '',
-                    product_price_color: '',
-                    price_blacken: '',
-                    timer: '',
-                    timer_color: '',
-                    label_text: '',
-                    label_text_color: '',
-                    label_background: '',
-                    star_color: '',
-                    star_value: '',
-                    video_iframe: '',
-                    product_img_file_jpg: '',
-                    product_img_file_webp: '',
-                    product_link: '',
-                    title: '',
-                    title_color: '',
-                    title_animation: 'false',
-                    text_accent: '',
-                    text_accent_color: '',
-                    text: '',
-                    text_color: '',
-                    background_color: '',
-                    background_img_file: '',
-                    background_webp_img_file: '',
-                    background_video_file: '',
-                    button_link_1: '',
-                    button_text_1: '',
-                    button_class_1: '',
-                    button_link_2: '',
-                    button_text_2: '',
-                    button_class_2: '',
-                    color_elems_navigation: '',
-                    slide_effect: '',
-            });
+        // Settings default
+        settings: {
+            custom_css: '',
+            'groups_1_group_count_t-number': 1,
+            'groups_1_group_1_stories_count_t-number': 1,
+            'groups_1_group_1_story_1_t-number': false,
+            groups_1_tab_active: 1,
+            groups_1_height_group: 200,
+            groups_1_width_group: 150,
+            groups_1_round_corners: 10,
+            groups_1_stroke_color: 'royalblue',
+        }
+    },
+    filters: {
+        bool: function (value) {
+            if (!value) return ''
+            value = Boolean(value)
+            return value
         },
-        delSlide(e, index_group) {
-            if (this.group_settings[index_group].slide_count > 1) {
-                this.group_settings[index_group].slide_count--;
-                this.group_settings[index_group].slide_content.pop();
-            }
+
+        int: function (value) {
+            if (!value) return ''
+            value = Number(value)
+            return value
         },
-        checkImage(e, type) {
-            const input = e.target;
-            const inputBlockChilds = input.parentElement.parentElement.children;
-            let hintError;
-            let regex;
-  
-            switch (type) {
-                case 'jpg':
-                    regex = /(png|jpe?g|gif|svg)$/i;
-                    break;
-                case 'webp':
-                    regex = /webp$/i;
-                    break;
-                case 'video':
-                    regex = /(ogv|oga|ogx|ogg|mp4|webm|mkv)$/i;
-                    break;
-            }
-  
-            for (let i = 0; i < inputBlockChilds.length; i++) {
-                const elem = inputBlockChilds[i];
-  
-                if (elem.className && elem.className.match(/hint-error/gi)) {
-                    hintError = elem;
+    },
+    methods: {
+        addGroup() {
+            this.groups_count++
+            
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_count_t-number', 1)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_group_count_t-number', 1)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_active', true)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_stories_count_t-number', 1)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_story_1_t-number', false)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_tab_active', 1)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_height_group', 200)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_stroke_color', 'royalblue')
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_width_group', 150)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_round_corners', 10)
+        },
+
+        delGroup() {
+            if (this.groups_count > 1) {
+                const regExp = new RegExp('^groups_' + this.groups_count)
+
+                for (const item in this.settings) {
+                    if (this.settings.hasOwnProperty(item)) {
+                        if (regExp.test(item) && !/count/.test(item)) {
+                            console.log(item)
+                            this.settings[item] = ''
+                        }
+                    }
+                }
+                console.log(this.settings)
+                this.groups_count--
+            } 
+        },
+
+        selectTab(e, tabNumber, numberGroups) {
+            let tabButton = e.target.parentElement
+            if (e.target.tagName === 'LI') tabButton = e.target
+
+            const key = 'groups_' + numberGroups + '_tab_active'
+
+            this.settings[key] = tabNumber;
+        },
+
+        addTab(e, numberGroups) {
+            const groupCountKey = 'groups_' + numberGroups + '_group_count_t-number'
+            this.settings[groupCountKey]++
+
+            const groupActiveKey = 'groups_' + numberGroups + '_group_' + this.settings[groupCountKey] + '_active'
+            Vue.set(this.settings, groupActiveKey, true)
+
+            const storiesCountKey = 'groups_' + numberGroups + '_group_' + this.settings[groupCountKey] + '_stories_count_t-number'
+            Vue.set(this.settings, storiesCountKey, 1)
+
+            const storyNumberkey = 'groups_' + numberGroups + '_group_' + this.settings[groupCountKey] + '_story_1_t-number'
+            Vue.set(this.settings, storyNumberkey, false)
+
+            this.settings['groups_' + numberGroups + '_tab_active'] = this.settings[groupCountKey]
+        },
+
+        delTab(e, numberGroups) {
+            const groupCountKey = 'groups_' + numberGroups + '_group_count_t-number'
+            if (this.settings[groupCountKey] > 1) {
+                const regExp = new RegExp('^groups_' + numberGroups + '_group_' + this.settings[groupCountKey])
+
+                for (const item in this.settings) {
+                    if (this.settings.hasOwnProperty(item)) {
+                        if (regExp.test(item)) {
+                            console.log(item)
+                            this.settings[item] = ''
+                        }
+                    }
+                }
+
+                this.settings[groupCountKey]--
+                this.settings['groups_' + numberGroups + '_tab_active'] = this.settings[groupCountKey]
+            } 
+        },
+
+        addStory(e, numberGroups, numberGroup) {
+            const storiesCountKey = 'groups_' + numberGroups + '_group_' + numberGroup + '_stories_count_t-number'
+
+            this.settings[storiesCountKey]++
+            Vue.set(this.settings, storiesCountKey, this.settings[storiesCountKey])
+
+            const storyNumberkey = 'groups_' + numberGroups + '_group_' + numberGroup + '_story_' + this.settings[storiesCountKey] + '_t-number'
+            Vue.set(this.settings, storyNumberkey, false)
+        },
+
+        delStory(e, numberGroups, numberGroup) {
+            const key = 'groups_' + numberGroups + '_group_' + numberGroup + '_stories_count_t-number'
+
+            if (this.settings[key] > 1) {
+                const regExp = new RegExp('^groups_' + numberGroups + '_group_' + numberGroup + '_story_' + this.settings[key])
+
+                for (const item in this.settings) {
+                    if (this.settings.hasOwnProperty(item)) {
+                        if (regExp.test(item)) {
+                            this.settings[item] = ''
+                        }
+                    }
+                }
+
+                this.settings[key]--
+            } 
+        },
+
+        storyShow(e, numberGroups, numberGroup, numberStory) {
+            const key = 'groups_' + numberGroups + '_group_' + numberGroup + '_story_' + numberStory + '_t-number'
+
+            Vue.set(this.settings, key, !this.settings[key])
+        },
+
+        delImageProduct(e, key) {
+            this.settings[key] = ''
+        },
+
+        checkImage(e) {
+            const valueElem = e.target.parentElement.parentElement
+            let hintError
+
+            for (let index = 0; index < valueElem.children.length; index++) {
+                const elem = valueElem.children[index]
+
+                if (elem.className && /hint-error/gi.test(elem.className)) {
+                    hintError = elem
                 }
             }
-  
-            if (!regex.test(input.value)) {
-                hintError.style.display = 'block';
+
+            if (e.target.value && !/(png|jpe?g|gif|svg|webp)$/i.test(e.target.value)) {
+                this.button_save_disabled = true
+                this.error_image = true
+                if (hintError) hintError.style.display = ''
             } else {
-                hintError.style.display = '';
+                this.button_save_disabled = false
+                this.error_image = false
+                if (hintError) hintError.style.display = 'none'
             }
         },
-        delImageProduct(e, groupNumber, slideNumber, type) {
-            const inputFileJpg = document.querySelector(`#block_${groupNumber}_input_img_text_${type}_${slideNumber}`);
-            const inputTextJpg = document.querySelector(`#block_${groupNumber}_input_img_file_${type}_${slideNumber}`);
-  
-            const inputFileJpgNameDefault = inputFileJpg.name;
-            const inputTextJpgNameDefault = inputTextJpg.name;
-            
-            switch (type) {
-                case 'jpg':
-                    this.group_settings[groupNumber -1].slide_content[slideNumber -1].product_img_file_jpg = false;
-                    break;
-                case 'webp':
-                    this.group_settings[groupNumber -1].slide_content[slideNumber -1].product_img_file_webp = false;
-                    break;
+
+        checkVideo(e) {
+            const valueElem = e.target.parentElement.parentElement
+            let hintError
+
+            for (let index = 0; index < valueElem.children.length; index++) {
+                const elem = valueElem.children[index]
+
+                if (elem.className && /hint-error/gi.test(elem.className)) {
+                    hintError = elem
+                }
             }
-            
-            inputTextJpg.name = inputFileJpgNameDefault;
-            inputFileJpg.name = inputTextJpgNameDefault;
-            inputTextJpg.value = '';
-        },
-        delImageBG(e, groupNumber, slideNumber, type) {
-            const inputFileJpg = document.querySelector(`#block_${groupNumber}_input_background_img_file_${type}_${slideNumber}`);
-            const inputTextJpg = document.querySelector(`#block_${groupNumber}_input_background_img_text_${type}_${slideNumber}`);
-  
-            const inputFileJpgNameDefault = inputFileJpg.name;
-            const inputTextJpgNameDefault = inputTextJpg.name;
-            
-            switch (type) {
-                case 'jpg':
-                    this.group_settings[groupNumber -1].slide_content[slideNumber -1].background_img_file_jpg = false;
-                    break;
-                case 'webp':
-                    this.group_settings[groupNumber -1].slide_content[slideNumber -1].background_img_file_webp = false;
-                    break;
+
+            if (e.target.value && !/(ogv|oga|ogx|ogg|mp4|webm|mkv)$/i.test(e.target.value)) {
+                this.button_save_disabled = true
+                this.error_video = true
+                if (hintError) hintError.style.display = ''
+            } else {
+                this.button_save_disabled = false
+                this.error_video = false
+                if (hintError) hintError.style.display = 'none'
             }
-            
-            inputTextJpg.name = inputFileJpgNameDefault;
-            inputFileJpg.name = inputTextJpgNameDefault;
-            inputTextJpg.value = '';
         },
-        delImageVideo(e, groupNumber, slideNumber, type) {
-            const inputFileJpg = document.querySelector(`#block_${groupNumber}_input_video_file_${slideNumber}`);
-            const inputTextJpg = document.querySelector(`#block_${groupNumber}_input_video_text_${slideNumber}`);
-  
-            const inputFileJpgNameDefault = inputFileJpg.name;
-            const inputTextJpgNameDefault = inputTextJpg.name;
-            
-            this.group_settings[groupNumber -1].slide_content[slideNumber -1].background_video_file = false;
-            
-            inputTextJpg.name = inputFileJpgNameDefault;
-            inputFileJpg.name = inputTextJpgNameDefault;
-            inputTextJpg.value = '';
-        },
-        delTimer(e, groupNumber, slideNumber) {
-            this.group_settings[groupNumber -1].slide_content[slideNumber -1].timer_date = '';
-            this.group_settings[groupNumber -1].slide_content[slideNumber -1].timer_time = '';
-        },
-        selectTab(e, indexGroup, slideNumber) {
-            let tabButton = e.target.parentElement;
-            if (e.target.tagName === 'LI') tabButton = e.target;
-  
-            this.group_settings[indexGroup].slide_active_num = slideNumber;
-        },
+
         pageReload() {
             setTimeout(function () {
                 window.location.reload();
-            }, 1000);
+            }, 500);
         },
     },
-    created: function () {
-        let numberGroup = 0;
-        for (let i = 0; i < this.group_count; i++) {
-            numberGroup++;
-            this.group_settings.push({
-                arrows_nav: document.querySelector(`#block_settings_${numberGroup}_arrows_nav`).value == 'true' ? true : false,
-                buttons_switch_pos: document.querySelector(`#block_settings_${numberGroup}_buttons_switch_pos`).value,
-                buttons_switch_view: document.querySelector(`#block_settings_${numberGroup}_buttons_switch_view`).value,
-                arrows_switch_view: document.querySelector(`#block_settings_${numberGroup}_arrows_switch_view`).value,
-                slider_width: document.querySelector(`#block_settings_${numberGroup}_slider_width`).value,
-                slider_height: document.querySelector(`#block_settings_${numberGroup}_slider_height`).value,
-                slider_min_height: document.querySelector(`#block_settings_${numberGroup}_slider_min_height`).value,
-                font_size: document.querySelector(`#block_settings_${numberGroup}_font_size`).value,
-                margin_top: document.querySelector(`#block_settings_${numberGroup}_margin_top`).value,
-                margin_right: document.querySelector(`#block_settings_${numberGroup}_margin_right`).value,
-                margin_left: document.querySelector(`#block_settings_${numberGroup}_margin_left`).value,
-                margin_bottom: document.querySelector(`#block_settings_${numberGroup}_margin_bottom`).value,
-                border_radius: document.querySelector(`#block_settings_${numberGroup}_border_radius`).value,
-                buttons_nav: document.querySelector(`#block_settings_${numberGroup}_buttons_nav`).value == 'true' ? true : false,
-                auto_play: document.querySelector(`#block_settings_${numberGroup}_auto_play`).value == 'true' ? true : false,
-                auto_play_speed: document.querySelector(`#block_settings_${numberGroup}_auto_play_speed`).value,
-                slide_content: [],
-                slide_active_num: 1,
-                slide_count: Number(document.querySelector(`#slider_${numberGroup}_slide_count`).value),
-            })
-  
-            let slideNumber = 0;
-            for (let j = 0; j < this.group_settings[i].slide_count; j++) {
-                slideNumber++;
-                this.group_settings[i].slide_content.push(
-                    {   
-                        active_slide: document.querySelector(`#slide_${numberGroup}_active_slide_${slideNumber}`).value == 'true' ? true : false,
-                        slide_type: document.querySelector(`#slide_${numberGroup}_slide_type_${slideNumber}`).value,
-                        product_title: document.querySelector(`#slide_${numberGroup}_product_title_${slideNumber}`).value,
-                        product_description: document.querySelector(`#slide_${numberGroup}_product_description_${slideNumber}`).value,
-                        product_price: document.querySelector(`#slide_${numberGroup}_product_price_${slideNumber}`).value,
-                        product_price_new: document.querySelector(`#slide_${numberGroup}_product_price_new_${slideNumber}`).value,
-                        product_price_new_color: document.querySelector(`#slide_${numberGroup}_product_price_new_color_${slideNumber}`).value,
-                        product_price_color: document.querySelector(`#slide_${numberGroup}_product_price_color_${slideNumber}`).value,
-                        price_blacken: document.querySelector(`#slide_${numberGroup}_price_blacken_${slideNumber}`).value,
-                        timer_date: document.querySelector(`#slide_${numberGroup}_timer_date_${slideNumber}`).value,
-                        timer_time: document.querySelector(`#slide_${numberGroup}_timer_time_${slideNumber}`).value,
-                        timer_color: document.querySelector(`#slide_${numberGroup}_timer_color_${slideNumber}`).value,
-                        label_text: document.querySelector(`#slide_${numberGroup}_label_text_${slideNumber}`).value,
-                        label_text_color: document.querySelector(`#slide_${numberGroup}_label_text_color_${slideNumber}`).value,
-                        label_background: document.querySelector(`#slide_${numberGroup}_label_background_${slideNumber}`).value,
-                        star_color: document.querySelector(`#slide_${numberGroup}_star_color_${slideNumber}`).value,
-                        star_value: document.querySelector(`#slide_${numberGroup}_star_value_${slideNumber}`).value,
-                        video_iframe: document.querySelector(`#slide_${numberGroup}_video_iframe_${slideNumber}`).value,
-                        product_img_file_jpg: document.querySelector(`#slide_${numberGroup}_product_img_file_jpg_${slideNumber}`).value,
-                        product_img_file_webp: document.querySelector(`#slide_${numberGroup}_product_img_file_webp_${slideNumber}`).value,
-                        product_link: document.querySelector(`#slide_${numberGroup}_product_link_${slideNumber}`).value,
-                        title: document.querySelector(`#slide_${numberGroup}_title_${slideNumber}`).value,
-                        title_color: document.querySelector(`#slide_${numberGroup}_title_color_${slideNumber}`).value,
-                        title_animation: document.querySelector(`#slide_${numberGroup}_title_animation_${slideNumber}`).value == 'true' ? true : false,
-                        text_accent: document.querySelector(`#slide_${numberGroup}_text_accent_${slideNumber}`).value,
-                        text_accent_color: document.querySelector(`#slide_${numberGroup}_text_accent_color_${slideNumber}`).value,
-                        text: document.querySelector(`#slide_${numberGroup}_text_${slideNumber}`).value,
-                        text_color: document.querySelector(`#slide_${numberGroup}_text_color_${slideNumber}`).value,
-                        background_color: document.querySelector(`#slide_${numberGroup}_background_color_${slideNumber}`).value,
-                        background_img_file_jpg: document.querySelector(`#slide_${numberGroup}_background_img_file_jpg_${slideNumber}`).value,
-                        background_img_file_webp: document.querySelector(`#slide_${numberGroup}_background_img_file_webp_${slideNumber}`).value,
-                        background_video_file: document.querySelector(`#slide_${numberGroup}_background_video_file_${slideNumber}`).value,
-                        button_link_1: document.querySelector(`#slide_${numberGroup}_button_link_1_${slideNumber}`).value,
-                        button_text_1: document.querySelector(`#slide_${numberGroup}_button_text_1_${slideNumber}`).value,
-                        button_class_1: document.querySelector(`#slide_${numberGroup}_button_class_1_${slideNumber}`).value,
-                        button_link_2: document.querySelector(`#slide_${numberGroup}_button_link_2_${slideNumber}`).value,
-                        button_text_2: document.querySelector(`#slide_${numberGroup}_button_text_2_${slideNumber}`).value,
-                        button_class_2: document.querySelector(`#slide_${numberGroup}_button_class_2_${slideNumber}`).value,
-                        color_elems_navigation: document.querySelector(`#slide_${numberGroup}_color_elems_navigation_${slideNumber}`).value,
-                        slide_effect: document.querySelector(`#slide_${numberGroup}_slide_effect_${slideNumber}`).value,
+    mounted: function () {
+        axios
+            .get(this.url + 'webasyststories-settings/')
+            .then(response => {
+                const settingsDB = response.data.data.result
+
+                // Привидение к числу свойств t-number
+                for (const item in settingsDB) {
+                    if (settingsDB.hasOwnProperty(item)) {
+                        if (/_t-number/gi.test(item)) {
+                            settingsDB[item] = Number(settingsDB[item])
+                        }
                     }
-                )
-            }
-        }
+                }
+
+                const settingsMerge = Object.assign({}, this.settings, settingsDB)
+                this.settings = settingsMerge
+            })
+            .catch(error => console.log(error))
+            .finally(() => (this.loading = false))
     }
-  })
+
+})
