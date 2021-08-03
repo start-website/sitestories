@@ -206,7 +206,7 @@ var app = new Vue({
     },
     mounted: function () {
         axios
-            .get(this.url + 'webasyststories-settings/')
+            .get(this.url + 'sitestories-settings/')
             .then(response => {
                 const settingsDB = response.data.data.result
 
