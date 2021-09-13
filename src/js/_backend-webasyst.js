@@ -3,6 +3,7 @@ var app = new Vue({
     el: '.start',
     data: {
         plugin_url: document.querySelector('#plugin_url').value,
+        path_public_files: document.querySelector('#path_public_files').value + '/',
         groups_count: Number(document.querySelector('#groups_count').value),
         url: document.querySelector('#url').value,
         custom_css_instruction: false,
@@ -17,11 +18,22 @@ var app = new Vue({
             'groups_1_group_count_t-number': 1,
             'groups_1_group_1_stories_count_t-number': 1,
             'groups_1_group_1_story_1_t-number': false,
+            groups_1_container_width: 1200,
+            groups_1_margin_section: '',
             groups_1_tab_active: 1,
             groups_1_height_group: 200,
             groups_1_width_group: 150,
+            groups_1_margin_group: 30,
             groups_1_round_corners: 10,
             groups_1_stroke_color: 'royalblue',
+
+            groups_1_margin_section_mobile: '',
+            groups_1_height_group_mobile: 100,
+            groups_1_width_group_mobile: 100,
+            groups_1_round_corners_mobile: 5,
+            groups_1_stroke_color_mobile: 'royalblue',
+            groups_1_margin_group_mobile: 10,
+            groups_1_heading_mobile: false,
         }
     },
     filters: {
@@ -40,17 +52,27 @@ var app = new Vue({
     methods: {
         addGroup() {
             this.groups_count++
-            
+
             Vue.set(this.settings, 'groups_' + this.groups_count + '_group_count_t-number', 1)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_group_count_t-number', 1)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_active', true)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_stories_count_t-number', 1)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_story_1_t-number', false)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_tab_active', 1)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_container_width', 1200)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_section', '')
             Vue.set(this.settings, 'groups_' + this.groups_count + '_height_group', 200)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_stroke_color', 'royalblue')
             Vue.set(this.settings, 'groups_' + this.groups_count + '_width_group', 150)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_group', 30)
             Vue.set(this.settings, 'groups_' + this.groups_count + '_round_corners', 10)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_section_mobile', '')
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_height_group_mobile', 100)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_stroke_color_mobile', 'royalblue')
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_width_group_mobile', 100)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_group_mobile', 10)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_round_corners_mobile', 5)
+            Vue.set(this.settings, 'groups_' + this.groups_count + '_heading_mobile', false)
         },
 
         delGroup() {
@@ -67,7 +89,7 @@ var app = new Vue({
                 }
                 console.log(this.settings)
                 this.groups_count--
-            } 
+            }
         },
 
         selectTab(e, tabNumber, numberGroups) {
@@ -111,7 +133,7 @@ var app = new Vue({
 
                 this.settings[groupCountKey]--
                 this.settings['groups_' + numberGroups + '_tab_active'] = this.settings[groupCountKey]
-            } 
+            }
         },
 
         addStory(e, numberGroups, numberGroup) {
@@ -139,7 +161,7 @@ var app = new Vue({
                 }
 
                 this.settings[key]--
-            } 
+            }
         },
 
         storyShow(e, numberGroups, numberGroup, numberStory) {
@@ -195,6 +217,22 @@ var app = new Vue({
                 this.button_save_disabled = false
                 this.error_video = false
                 if (hintError) hintError.style.display = 'none'
+            }
+        },
+
+        openElem(e) {
+            if (!e.target.className || !/hidden-fields__heading/gi.test(e.target.className)) return
+
+            const h5 = e.target
+            const fields = e.target.parentNode.children[1]
+            const icon = h5.children[0]
+
+            if (/d-none/gi.test(fields.className)) {
+                fields.className = fields.className.replace(/\s(d-none)/, '')
+                icon.className = icon.className.replace(/rarr/gi, 'darr')
+            } else {
+                fields.className += ' d-none'
+                icon.className = icon.className.replace(/darr/gi, 'rarr')
             }
         },
 
