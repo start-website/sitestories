@@ -877,5 +877,15 @@ class WebasystStories {
     }
     new WebasystStories(webasystStoriesSettings)
 
+    const webasystStoriesSettings2 = {
+        storiesSelector: '[data-stories-section="2"]',
+        previewsSelector: '[data-stories-previews="2"]',
+        storySelector: '[data-stories-groups="2"]',
+        timer: 1,
+        timerSpeed: '10',
+        isMobile: 1,
+    }
+    new WebasystStories(webasystStoriesSettings2)
+
 
 
