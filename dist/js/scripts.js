@@ -2939,13 +2939,13 @@ var WebasystStories = function WebasystStories(props) {
           _this6.storiesList.style.transform = "translateY(-".concat(_this6.storyPositionY, "px)");
           _this6.switchStoryEvent = false; // swipe up
 
-          if (touchDifferenceY > 115) {
+          if (touchDifferenceY > 70) {
             _this6.model._switchRight(storiesGroup);
 
             _this6.switchStoryEvent = true;
           }
 
-          if (touchDifferenceY < -115) {
+          if (touchDifferenceY < -70) {
             _this6.model._switchLeft(storiesGroup);
 
             _this6.switchStoryEvent = true;

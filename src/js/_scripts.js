@@ -345,12 +345,12 @@ class WebasystStories {
                             this.switchStoryEvent = false
 
                             // swipe up
-                            if (touchDifferenceY > 115) {
+                            if (touchDifferenceY > 70) {
                                 this.model._switchRight(storiesGroup)
                                 this.switchStoryEvent = true
                             }
 
-                            if (touchDifferenceY < -115) {
+                            if (touchDifferenceY < -70) {
                                 this.model._switchLeft(storiesGroup)
                                 this.switchStoryEvent = true
                             }

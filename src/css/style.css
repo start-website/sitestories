@@ -372,7 +372,7 @@
   position: absolute;
   right: 13px;
   top: 35px;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .webasyst-stories__close-mobile:hover {
