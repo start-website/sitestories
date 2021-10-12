@@ -3193,6 +3193,8 @@ var WebasystStories = function WebasystStories(props) {
       storiesGroupBGVideo.style.display = 'none';
     },
     _setBackground: function _setBackground(storiesGroupBG, storiesGroupBGVideo, elem) {
+      if (this.isMobile) return;
+
       switch (elem) {
         case 'img':
           storiesGroupBG.style.backgroundImage = "url(".concat(this.media[this.indexStory], ")");

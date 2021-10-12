@@ -636,6 +636,19 @@
   flex-direction: column;
 }
 
+.webasyst-stories.mobile .webasyst-stories__sound {
+  left: 13px;
+  top: 30px;
+  z-index: 100;
+  width: 38px;
+  height: 38px;
+}
+
+.webasyst-stories.mobile .webasyst-stories__sound .webasyst-stories__icon-sound {
+  width: 25px;
+  height: 25px;
+}
+
 @media (min-width: 320px) and (max-width: 1300px) {
   .webasyst-stories__title {
     font-size: -webkit-calc(0.00306 * 100vw + 17.02041px);

@@ -42,6 +42,7 @@
     "gulp-ttf2woff2": "^3.0.0",
     "gulp-webp": "^4.0.1",
     "normalize.css": "^8.0.1",
+    "video.js": "^7.15.4",
     "webpack-stream": "^5.2.1"
   },
   "dependencies": {

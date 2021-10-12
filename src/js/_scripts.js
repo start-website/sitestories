@@ -596,6 +596,8 @@ class WebasystStories {
                 },
 
                 _setBackground(storiesGroupBG, storiesGroupBGVideo, elem) {
+                    if (this.isMobile) return
+
                     switch (elem) {
                         case 'img':
                             storiesGroupBG.style.backgroundImage = `url(${this.media[this.indexStory]})`
