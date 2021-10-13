@@ -898,7 +898,7 @@ class WebasystStories {
         storiesSelector: '[data-stories-section="1"]',
         previewsSelector: '[data-stories-previews="1"]',
         storySelector: '[data-stories-groups="1"]',
-        timer: 0,
+        timer: 1,
         timerSpeed: '10',
         isMobile: 0,
     }
@@ -908,7 +908,7 @@ class WebasystStories {
         storiesSelector: '[data-stories-section="2"]',
         previewsSelector: '[data-stories-previews="2"]',
         storySelector: '[data-stories-groups="2"]',
-        timer: 0,
+        timer: 1,
         timerSpeed: '10',
         isMobile: 1,
     }
