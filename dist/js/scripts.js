@@ -2611,6 +2611,7 @@ var WebasystStories = function WebasystStories(props) {
   this.arrowRight = '';
   this.arrowLeft = '';
   this.timer = props.timer;
+  this.previewsWidth = 0;
   this.timerSpeed = Number(props.timerSpeed + '0');
   this.indexStory = 0;
   this.indexGroup = 0;
@@ -2629,6 +2630,8 @@ var WebasystStories = function WebasystStories(props) {
   this.slideType = '';
   this.currentVideo = '';
   this.timerIndicator = '';
+  this.storyMessage = '';
+  this.isStoryMessageViewed = false;
   this.previewsMoveEvent = false;
   this.switchStoryEvent = false;
   this.listenerSwitchRight = new Set();
@@ -2662,6 +2665,7 @@ var WebasystStories = function WebasystStories(props) {
       this.buttonsLine = this.model._getElems(this.buttons, 'webasyst-stories__button-line');
       this.soundIcon = this.model._getElem(storiesGroup, 'webasyst-stories__sound');
       this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right');
+      this.storyMessage = this.model._getElem(storiesGroup, 'webasyst-stories__message-wrap');
       this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left');
       this.storiesList.children[0].classList.add('active');
       this.buttons.children[0].classList.add('active');
@@ -2730,6 +2734,17 @@ var WebasystStories = function WebasystStories(props) {
 
         _this.model.buttonsSwitch(storiesGroup);
       });
+
+      if (!this.isStoryMessageViewed) {
+        this.storyMessage.style.display = '';
+        setTimeout(function () {
+          _this.storyMessage.className += ' webasyst-stories__fade-out';
+        }, 1500);
+        setTimeout(function () {
+          _this.storyMessage.style.display = 'none';
+          _this.isStoryMessageViewed = true;
+        }, 2500);
+      }
     },
     closeStoriesGroup: function closeStoriesGroup() {
       clearInterval(this.timerIndicator);
@@ -3362,6 +3377,11 @@ var WebasystStories = function WebasystStories(props) {
             _this12.previewsMoveEvent = true;
           }
 
+          if (positionMoveX > 0) {
+            _this12.previews.style.transform = "translateX(0px)";
+            currentPositionX = 0;
+          }
+
           differenceX = 0;
           previews.removeEventListener('mousemove', move);
         }); // Наведение нажатой кнопки мыши на историю
@@ -3400,6 +3420,11 @@ var WebasystStories = function WebasystStories(props) {
             _this12.previewsMoveEvent = true;
           }
 
+          if (positionMoveX > 0) {
+            _this12.previews.style.transform = "translateX(0px)";
+            currentPositionX = 0;
+          }
+
           touchDifferenceX = 0;
         });
       };
@@ -3408,15 +3433,15 @@ var WebasystStories = function WebasystStories(props) {
       switchSwipe(this.previews);
       var previewsArr = this.previews.children;
       var storiesArr = this.storiesGroups.children;
-      var previewsWidth = 0;
+      this.previewsWidth = 0;
 
       for (var index = 0; index < previewsArr.length; index++) {
         this.model.addClickPreview(previewsArr[index], storiesArr[index], index);
-        previewsWidth += previewsArr[index].offsetWidth;
+        this.previewsWidth += previewsArr[index].offsetWidth;
       }
 
       if (this.isMobile) this.storiesSection.classList.add('mobile');
-      this.previews.style.width = previewsWidth + 'px';
+      this.previews.style.width = this.previewsWidth + 'px';
     }
   }, this.app = {
     init: function init() {
@@ -3443,7 +3468,7 @@ var webasystStoriesSettings = {
   storiesSelector: '[data-stories-section="1"]',
   previewsSelector: '[data-stories-previews="1"]',
   storySelector: '[data-stories-groups="1"]',
-  timer: 1,
+  timer: 0,
   timerSpeed: '10',
   isMobile: 0
 };
@@ -3452,7 +3477,7 @@ var webasystStoriesSettings2 = {
   storiesSelector: '[data-stories-section="2"]',
   previewsSelector: '[data-stories-previews="2"]',
   storySelector: '[data-stories-groups="2"]',
-  timer: 1,
+  timer: 0,
   timerSpeed: '10',
   isMobile: 1
 };
