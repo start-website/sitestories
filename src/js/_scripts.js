@@ -27,7 +27,7 @@ class WebasystStories {
         this.slideType = ''
         this.currentVideo = ''
         this.timerIndicator = ''
-        this.storyMessage = ''
+        this.storyMessages = ''
         this.isStoryMessageViewed = false
         this.previewsMoveEvent = false
         this.switchStoryEvent = false
@@ -64,7 +64,7 @@ class WebasystStories {
                     this.buttonsLine = this.model._getElems(this.buttons, 'webasyst-stories__button-line')
                     this.soundIcon = this.model._getElem(storiesGroup, 'webasyst-stories__sound')
                     this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right')
-                    this.storyMessage = this.model._getElem(storiesGroup, 'webasyst-stories__message-wrap')
+                    this.storyMessages = this.model._getElems(this.storiesGroups, 'webasyst-stories__message-wrap')
                     this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left')
                     this.storiesList.children[0].classList.add('active')
                     this.buttons.children[0].classList.add('active')
@@ -133,15 +133,19 @@ class WebasystStories {
                     })
 
                     if (!this.isStoryMessageViewed) {
-                        this.storyMessage.style.display = ''
-                        setTimeout(() => {
-                            this.storyMessage.className += ' webasyst-stories__fade-out'
-                        }, 1500)
-    
-                        setTimeout(() => {
-                            this.storyMessage.style.display = 'none'
-                            this.isStoryMessageViewed = true
-                        }, 2500)
+                        for (let i = 0; i < this.storyMessages.length; i++) {
+                            const storyMessage = this.storyMessages[i];
+                            storyMessage.style.display = ''
+
+                            setTimeout(() => {
+                                storyMessage.className += ' webasyst-stories__fade-out'
+                            }, 1500)
+        
+                            setTimeout(() => {
+                                storyMessage.style.display = 'none'
+                                this.isStoryMessageViewed = true
+                            }, 2500)
+                        }
                     }
                 },
 
@@ -254,6 +258,8 @@ class WebasystStories {
                     const self = this
 
                     this.timerIndicator = setInterval(function () {
+                        if (!self.isStoryMessageViewed) return
+
                         const storiesListEnd = self.indexStory == storiesLength - 1
                         const storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1
 
@@ -809,25 +815,25 @@ class WebasystStories {
                         })
                     }
 
-                    const switchSwipe = (preview) => {
+                    const switchSwipe = (previews) => {
                         let touchStartX = 0
                         let touchDifferenceX = 0
                         let currentPositionX = 0
                         let positionMoveX
 
-                        preview.addEventListener('touchstart', function (e) {
+                        previews.addEventListener('touchstart', function (e) {
                             touchStartX = e.touches[0].clientX
                             this.previewsMoveEvent = false
                         })
 
-                        preview.addEventListener('touchmove', (e) => {
+                        previews.addEventListener('touchmove', (e) => {
                             touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX)
 
                             positionMoveX = currentPositionX - touchDifferenceX
                             this.previews.style.transform = `translateX(${positionMoveX}px)`
                         })
 
-                        preview.addEventListener('touchend', (e) => {
+                        previews.addEventListener('touchend', (e) => {
                             currentPositionX = positionMoveX
  
                             if (touchDifferenceX > 10) {

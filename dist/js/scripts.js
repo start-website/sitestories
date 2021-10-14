@@ -2630,7 +2630,7 @@ var WebasystStories = function WebasystStories(props) {
   this.slideType = '';
   this.currentVideo = '';
   this.timerIndicator = '';
-  this.storyMessage = '';
+  this.storyMessages = '';
   this.isStoryMessageViewed = false;
   this.previewsMoveEvent = false;
   this.switchStoryEvent = false;
@@ -2665,7 +2665,7 @@ var WebasystStories = function WebasystStories(props) {
       this.buttonsLine = this.model._getElems(this.buttons, 'webasyst-stories__button-line');
       this.soundIcon = this.model._getElem(storiesGroup, 'webasyst-stories__sound');
       this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right');
-      this.storyMessage = this.model._getElem(storiesGroup, 'webasyst-stories__message-wrap');
+      this.storyMessages = this.model._getElems(this.storiesGroups, 'webasyst-stories__message-wrap');
       this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left');
       this.storiesList.children[0].classList.add('active');
       this.buttons.children[0].classList.add('active');
@@ -2736,14 +2736,21 @@ var WebasystStories = function WebasystStories(props) {
       });
 
       if (!this.isStoryMessageViewed) {
-        this.storyMessage.style.display = '';
-        setTimeout(function () {
-          _this.storyMessage.className += ' webasyst-stories__fade-out';
-        }, 1500);
-        setTimeout(function () {
-          _this.storyMessage.style.display = 'none';
-          _this.isStoryMessageViewed = true;
-        }, 2500);
+        var _loop = function _loop(i) {
+          var storyMessage = _this.storyMessages[i];
+          storyMessage.style.display = '';
+          setTimeout(function () {
+            storyMessage.className += ' webasyst-stories__fade-out';
+          }, 1500);
+          setTimeout(function () {
+            storyMessage.style.display = 'none';
+            _this.isStoryMessageViewed = true;
+          }, 2500);
+        };
+
+        for (var i = 0; i < this.storyMessages.length; i++) {
+          _loop(i);
+        }
       }
     },
     closeStoriesGroup: function closeStoriesGroup() {
@@ -2858,6 +2865,7 @@ var WebasystStories = function WebasystStories(props) {
       var lineWidth = 0;
       var self = this;
       this.timerIndicator = setInterval(function () {
+        if (!self.isStoryMessageViewed) return;
         var storiesListEnd = self.indexStory == storiesLength - 1;
         var storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1;
         if (lineWidth >= 100) clearInterval(self.timerIndicator);
@@ -3395,21 +3403,21 @@ var WebasystStories = function WebasystStories(props) {
         });
       };
 
-      var switchSwipe = function switchSwipe(preview) {
+      var switchSwipe = function switchSwipe(previews) {
         var touchStartX = 0;
         var touchDifferenceX = 0;
         var currentPositionX = 0;
         var positionMoveX;
-        preview.addEventListener('touchstart', function (e) {
+        previews.addEventListener('touchstart', function (e) {
           touchStartX = e.touches[0].clientX;
           this.previewsMoveEvent = false;
         });
-        preview.addEventListener('touchmove', function (e) {
+        previews.addEventListener('touchmove', function (e) {
           touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX);
           positionMoveX = currentPositionX - touchDifferenceX;
           _this12.previews.style.transform = "translateX(".concat(positionMoveX, "px)");
         });
-        preview.addEventListener('touchend', function (e) {
+        previews.addEventListener('touchend', function (e) {
           currentPositionX = positionMoveX;
 
           if (touchDifferenceX > 10) {
