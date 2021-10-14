@@ -258,7 +258,7 @@ class WebasystStories {
                     const self = this
 
                     this.timerIndicator = setInterval(function () {
-                        if (!self.isStoryMessageViewed) return
+                        if (self.isMobile && !self.isStoryMessageViewed) return
 
                         const storiesListEnd = self.indexStory == storiesLength - 1
                         const storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1

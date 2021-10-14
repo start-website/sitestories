@@ -2865,7 +2865,7 @@ var WebasystStories = function WebasystStories(props) {
       var lineWidth = 0;
       var self = this;
       this.timerIndicator = setInterval(function () {
-        if (!self.isStoryMessageViewed) return;
+        if (self.isMobile && !self.isStoryMessageViewed) return;
         var storiesListEnd = self.indexStory == storiesLength - 1;
         var storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1;
         if (lineWidth >= 100) clearInterval(self.timerIndicator);
