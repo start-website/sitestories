@@ -762,9 +762,9 @@ class WebasystStories {
             this.controller = {
                 storiesControl() {
                     const switchDrag = (previews) => {
-                        let startX
-                        let differenceX
-                        let positionMoveX
+                        let startX = 0
+                        let differenceX = 0
+                        let positionMoveX = 0
                         let currentPositionX = 0
 
                         const move = (e) => {
@@ -819,7 +819,7 @@ class WebasystStories {
                         let touchStartX = 0
                         let touchDifferenceX = 0
                         let currentPositionX = 0
-                        let positionMoveX
+                        let positionMoveX = 0
 
                         previews.addEventListener('touchstart', function (e) {
                             touchStartX = e.touches[0].clientX
@@ -835,7 +835,7 @@ class WebasystStories {
 
                         previews.addEventListener('touchend', (e) => {
                             currentPositionX = positionMoveX
- 
+
                             if (touchDifferenceX > 10) {
                                 this.previewsMoveEvent = true
                             }
@@ -848,6 +848,11 @@ class WebasystStories {
                                 this.previews.style.transform = `translateX(0px)`
                                 currentPositionX = 0
                             }
+
+                            // if (positionMoveX < (100 - this.previewsWidth)) {
+                            //     this.previews.style.transform = `translateX(0px)`
+                            //     currentPositionX = 0
+                            // }
 
                             touchDifferenceX = 0
                         })

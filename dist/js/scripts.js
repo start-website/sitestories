@@ -3354,9 +3354,9 @@ var WebasystStories = function WebasystStories(props) {
       var _this12 = this;
 
       var switchDrag = function switchDrag(previews) {
-        var startX;
-        var differenceX;
-        var positionMoveX;
+        var startX = 0;
+        var differenceX = 0;
+        var positionMoveX = 0;
         var currentPositionX = 0;
 
         var move = function move(e) {
@@ -3407,7 +3407,7 @@ var WebasystStories = function WebasystStories(props) {
         var touchStartX = 0;
         var touchDifferenceX = 0;
         var currentPositionX = 0;
-        var positionMoveX;
+        var positionMoveX = 0;
         previews.addEventListener('touchstart', function (e) {
           touchStartX = e.touches[0].clientX;
           this.previewsMoveEvent = false;
@@ -3431,7 +3431,11 @@ var WebasystStories = function WebasystStories(props) {
           if (positionMoveX > 0) {
             _this12.previews.style.transform = "translateX(0px)";
             currentPositionX = 0;
-          }
+          } // if (positionMoveX < (100 - this.previewsWidth)) {
+          //     this.previews.style.transform = `translateX(0px)`
+          //     currentPositionX = 0
+          // }
+
 
           touchDifferenceX = 0;
         });
