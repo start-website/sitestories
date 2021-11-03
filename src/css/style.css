@@ -5,11 +5,6 @@
   box-sizing: border-box;
 }
 
-.webasyst-stories {
-  display: flex;
-  justify-content: center;
-}
-
 .webasyst-stories__previews-wrap {
   overflow: hidden;
 }
@@ -33,6 +28,10 @@
 
 .webasyst-stories__preview:hover {
   opacity: 0.9;
+}
+
+.webasyst-stories__preview:visited {
+  border-color: #ccc !important;
 }
 
 .webasyst-stories__image {
@@ -67,6 +66,7 @@
   height: 100%;
   position: relative;
   justify-content: center;
+  align-items: center;
   display: none;
 }
 
@@ -76,8 +76,6 @@
 
 .webasyst-stories__content {
   position: relative;
-  max-width: 1080px;
-  max-height: 1920px;
   z-index: 10;
 }
 
@@ -92,7 +90,10 @@
 .webasyst-stories__message-icon {
   fill: #fff;
   width: 70px;
+  height: 70px;
   position: absolute;
+  background-image: url("../img/icons/finger.svg");
+  background-size: cover;
   top: 50%;
   transform: translateY(-50%);
   margin: 0 auto;
@@ -104,7 +105,10 @@
 .webasyst-stories__list-wrap {
   overflow: hidden;
   position: relative;
+  border-radius: 7px;
   z-index: 10;
+  max-width: 1080px;
+  max-height: 1920px;
 }
 
 .webasyst-stories__bg-back {
@@ -144,13 +148,14 @@
 .webasyst-stories__list {
   overflow: hidden;
   height: inherit;
+  width: inherit;
   transform: translateX(0);
   display: flex;
 }
 
 .webasyst-stories__story {
   position: relative;
-  height: 100vh;
+  height: inherit;
   background-color: #000;
 }
 
@@ -177,7 +182,7 @@
 
 .webasyst-stories__story video {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -246,6 +251,9 @@
   right: 0;
   margin: 0 auto;
   cursor: pointer;
+  width: 70px;
+  height: 70px;
+  background: url("../img/icons/play.svg") transparent no-repeat center;
 }
 
 .webasyst-stories__buttons {
@@ -340,7 +348,7 @@
 .webasyst-stories__close {
   position: absolute;
   right: -70px;
-  top: 10px;
+  top: 0;
 }
 
 .webasyst-stories__icon-close {
@@ -359,7 +367,7 @@
 .webasyst-stories__sound {
   position: absolute;
   left: -70px;
-  top: 10px;
+  top: 0;
   width: 48px;
   height: 48px;
   background-color: rgba(255, 255, 255, 0.2);
@@ -474,10 +482,6 @@
   display: block;
 }
 
-.webasyst-stories.mobile .webasyst-stories__list {
-  flex-direction: column;
-}
-
 .webasyst-stories.mobile .webasyst-stories__sound {
   left: 13px;
   top: 30px;
@@ -489,6 +493,14 @@
 .webasyst-stories.mobile .webasyst-stories__sound .webasyst-stories__icon-sound {
   width: 25px;
   height: 25px;
+}
+
+.webasyst-stories.mobile .webasyst-stories__list-wrap {
+  border-radius: 0;
+}
+
+.webasyst-stories[data-switch="vertically"] .webasyst-stories__list {
+  flex-direction: column;
 }
 
 /*# sourceMappingURL=style.css.map */

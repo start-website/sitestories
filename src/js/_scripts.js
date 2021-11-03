@@ -13,22 +13,22 @@ class WebasystStories {
         this.indexStory = 0
         this.indexGroup = 0
         this.storyWidth = 0
-        this.windowHeight = 0
+        this.storyHeight = 0
         this.storyPositionX = 0
         this.storyPositionY = 0
         this.media = ''
+        this.allVideo = ''
         this.soundIcon = ''
         this.playIcon = ''
         this.storiesListWrap = ''
         this.storiesList = ''
         this.storiesGroupBG = ''
+        this.swicthHistoryType = props.swicthHistoryType
         this.buttons = ''
         this.buttonsLine = ''
         this.slideType = ''
         this.currentVideo = ''
         this.timerIndicator = ''
-        this.storyMessages = ''
-        this.isStoryMessageViewed = false
         this.previewsMoveEvent = false
         this.switchStoryEvent = false
         this.listenerSwitchRight = new Set()
@@ -40,6 +40,7 @@ class WebasystStories {
         this.listenerCloseStoriesGroup = new Set()
         this.listenerDragsFunc = new Set()
         this.listenerSwipeFunc = new Set()
+        this.listenerSwitchClick = new Set()
         this.listenerButtons = new WeakSet();
 
         this.view = {
@@ -61,10 +62,10 @@ class WebasystStories {
                     this.storiesGroupBG = this.model._getElem(storiesGroup, 'webasyst-stories__bg')
                     this.storiesGroupBGVideo = this.model._getElem(storiesGroup, 'webasyst-stories__bg_video')
                     this.buttons = this.model._getElem(storiesGroup, 'webasyst-stories__buttons')
-                    this.buttonsLine = this.model._getElems(this.buttons, 'webasyst-stories__button-line')
+                    this.allVideo = this.model._getElems(storiesGroup, 'VIDEO', 'tag')
+                    this.buttonsLine = this.model._getElems(this.buttons, 'webasyst-stories__button-line', 'class')
                     this.soundIcon = this.model._getElem(storiesGroup, 'webasyst-stories__sound')
                     this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right')
-                    this.storyMessages = this.model._getElems(this.storiesGroups, 'webasyst-stories__message-wrap')
                     this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left')
                     this.storiesList.children[0].classList.add('active')
                     this.buttons.children[0].classList.add('active')
@@ -88,15 +89,23 @@ class WebasystStories {
                         this.model._controlVideo(this.currentVideo, this.storiesGroupBGVideo, this.soundIcon, this.playIcon)
                     }
 
-                    this.windowHeight = window.innerHeight
-                    this.storyWidth = Math.floor(this.windowHeight * 0.6) <= window.innerWidth ? Math.floor(this.windowHeight * 0.6) : window.innerWidth
+                    if (this.isMobile) {
+                        this.storiesListWrap.style.width = window.innerWidth + 'px'
+                        this.storiesListWrap.style.height = window.innerHeight + 'px'
+                    } else {
+                        this.storiesListWrap.style.width = Math.ceil((window.innerHeight * 0.7) / 1.8) + 'px'
+                        this.storiesListWrap.style.height = window.innerHeight * 0.7 + 'px'
+                    }
+
+                    this.storyHeight = this.storiesListWrap.offsetHeight
+                    this.storyWidth = this.storiesListWrap.offsetWidth
+
+                    this.storyPositionX = this.storyWidth * this.indexStory
+                    this.storyPositionY = this.storyHeight * this.indexStory
 
                     this.buttonsLine.forEach(btn => {
                         btn.style.width = '0'
                     })
-
-                    this.storyPositionX = this.storyWidth * this.indexStory
-                    this.storyPositionY = this.windowHeight * this.indexStory
 
                     if (!this.listenerCloseStoriesGroup.has(this.indexGroup)) {
                         this.model.addClickStoriesGroup(storiesGroup, this.model.closeStoriesGroup)
@@ -105,6 +114,7 @@ class WebasystStories {
 
                     this.model.arrowsSwitch(storiesGroup)
                     this.model.buttonsSwitch(storiesGroup)
+                    this.model.switchClick(this.storiesListWrap, storiesGroup)
                     this.model.timerSwitch(storiesGroup)
                     this.model._checkSlideEnd()
 
@@ -115,13 +125,27 @@ class WebasystStories {
                     }
 
                     window.addEventListener('resize', () => {
-                        this.windowHeight = window.innerHeight
-                        this.storyWidth = Math.floor(this.windowHeight * 0.6) <= window.innerWidth ? Math.floor(this.windowHeight * 0.6) : window.innerWidth
+                        if (this.isMobile) {
+                            this.storiesListWrap.style.width = window.innerWidth + 'px'
+                            this.storiesListWrap.style.height = window.innerHeight + 'px'
+                        } else {
+                            this.storiesListWrap.style.width = Math.ceil((window.innerHeight * 0.7) / 1.8) + 'px'
+                            this.storiesListWrap.style.height = window.innerHeight * 0.7 + 'px'
+                        }
+
+                        this.storyHeight = this.storiesListWrap.offsetHeight
+                        this.storyWidth = this.storiesListWrap.offsetWidth
+  
                         this.storyPositionX = this.storyWidth * this.indexStory
-                        this.storyPositionY = this.windowHeight * this.indexStory
+                        this.storyPositionY = this.storyHeight * this.indexStory
 
                         if (this.isMobile) {
-                            this.storiesList.style.transform = `translateY(-${this.storyPositionY}px)`
+                            if (this.swicthHistoryType === 'vertically') {
+                                this.storiesList.style.transform = `translateY(-${this.storyPositionY}px)`
+                            } else {
+                                this.storiesList.style.transform = `translateX(-${this.storyPositionY}px)`
+                            }
+
                             this.model.switchSwipe(storiesGroup)
                         } else {
                             this.storiesList.style.transform = `translateX(-${this.storyPositionX}px)`
@@ -131,22 +155,6 @@ class WebasystStories {
                         this.model.arrowsSwitch(storiesGroup)
                         this.model.buttonsSwitch(storiesGroup)
                     })
-
-                    if (!this.isStoryMessageViewed) {
-                        for (let i = 0; i < this.storyMessages.length; i++) {
-                            const storyMessage = this.storyMessages[i];
-                            storyMessage.style.display = ''
-
-                            setTimeout(() => {
-                                storyMessage.className += ' webasyst-stories__fade-out'
-                            }, 1500)
-        
-                            setTimeout(() => {
-                                storyMessage.style.display = 'none'
-                                this.isStoryMessageViewed = true
-                            }, 2500)
-                        }
-                    }
                 },
 
                 closeStoriesGroup() {
@@ -178,7 +186,7 @@ class WebasystStories {
                 },
 
                 addClickPreview(preview, storiesGroup, indexGroup) {
-                    preview.addEventListener('click', () => {
+                    preview.addEventListener('click', (e) => {
                         this.model.openStoriesGroup(storiesGroup, indexGroup)
                     })
                 },
@@ -195,7 +203,7 @@ class WebasystStories {
                             button.addEventListener('click', () => {
                                 this.indexStory = btnInx
                                 this.storyPositionX = this.storyWidth * this.indexStory
-                                this.storyPositionY = this.windowHeight * this.indexStory
+                                this.storyPositionY = this.storyHeight * this.indexStory
 
                                 this.model._switchHistory(this.storyPositionY, this.storyPositionX, storiesGroup)
 
@@ -225,18 +233,17 @@ class WebasystStories {
                     let storiesHeight = 0
                     this.storiesList.children.forEach(story => {
                         story.style.width = this.storyWidth + 'px'
+                        story.style.height = this.storyHeight + 'px'
                         storiesWidth += this.storyWidth
-                        storiesHeight += this.windowHeight
+                        storiesHeight += this.storyHeight
                     })
 
-                    this.storiesListWrap.style.width = this.storyWidth + 'px'
-
-                    if (this.isMobile) {
-                        this.storiesList.style.width = 'inherit'
+                    if (this.isMobile && this.swicthHistoryType === 'vertically') {
                         this.storiesList.style.height = storiesHeight + 'px'
                     } else {
                         this.storiesList.style.width = storiesWidth + 'px'
                     }
+                    
 
                     if (!this.listenerSwitchRight.has(this.indexGroup)) {
                         this.arrowRight.addEventListener('click', this.model._switchRight.bind(this, storiesGroup))
@@ -258,8 +265,6 @@ class WebasystStories {
                     const self = this
 
                     this.timerIndicator = setInterval(function () {
-                        if (self.isMobile && !self.isStoryMessageViewed) return
-
                         const storiesListEnd = self.indexStory == storiesLength - 1
                         const storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1
 
@@ -348,41 +353,92 @@ class WebasystStories {
                 switchSwipe(storiesGroup) {
                     let touchStartY
                     let touchDifferenceY
+                    let touchStartX
+                    let touchDifferenceX
 
                     if (!this.listenerSwipeFunc.has(storiesGroup)) {
                         storiesGroup.addEventListener('touchstart', function (e) {
                             touchStartY = e.touches[0].clientY
+                            touchStartX = e.touches[0].clientX                           
                         })
 
                         storiesGroup.addEventListener('touchmove', (e) => {
-                            touchDifferenceY = Math.ceil(touchStartY - e.touches[0].clientY)
-
-                            let positionMoveY = this.storyPositionY + touchDifferenceY
-                            this.storiesList.style.transform = `translateY(-${positionMoveY}px)`
+                            if (this.swicthHistoryType === 'vertically') {
+                                touchDifferenceY = Math.ceil(touchStartY - e.touches[0].clientY)
+                                let positionMoveY = this.storyPositionY + touchDifferenceY
+                                this.storiesList.style.transform = `translateY(-${positionMoveY}px)`
+                            } else {
+                                touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX)
+                                let positionMoveX = this.storyPositionX + touchDifferenceX
+                                this.storiesList.style.transform = `translateX(-${positionMoveX}px)`
+                            }
                         })
 
                         storiesGroup.addEventListener('touchend', (e) => {
-                            this.storiesList.style.transform = `translateY(-${this.storyPositionY}px)`
+                            if (this.swicthHistoryType === 'vertically') {
+                                this.storiesList.style.transform = `translateY(-${this.storyPositionY}px)`
+                            } else {
+                                this.storiesList.style.transform = `translateX(-${this.storyPositionX}px)`
+                            }
 
                             this.switchStoryEvent = false
 
-                            // swipe up
-                            if (touchDifferenceY > 70) {
-                                this.model._switchRight(storiesGroup)
-                                this.switchStoryEvent = true
-                            }
+                            if (this.swicthHistoryType === 'vertically') {
+                                if (touchDifferenceY > 50) {
+                                    this.model._switchRight(storiesGroup)
+                                    this.switchStoryEvent = true
+                                }
+    
+                                if (touchDifferenceY < -50) {
+                                    this.model._switchLeft(storiesGroup)
+                                    this.switchStoryEvent = true
+                                }
+                            } else {
+                                // Движение вправо
+                                if (touchDifferenceX > 50) {
+                                    this.model._switchRight(storiesGroup)
+                                    this.switchStoryEvent = true
+                                }
 
-                            if (touchDifferenceY < -70) {
-                                this.model._switchLeft(storiesGroup)
-                                this.switchStoryEvent = true
+                                // Движение влево
+                                if (touchDifferenceX < -50) {
+                                    this.model._switchLeft(storiesGroup)
+                                    this.switchStoryEvent = true
+                                }
                             }
 
                             touchDifferenceY = 0
+                            touchDifferenceX = 0
                         })
 
                         this.listenerSwipeFunc.add(storiesGroup)
                     }
 
+                },
+
+                switchClick(storiesListWrap, storiesGroup) {
+                    if (!this.listenerSwitchClick.has(storiesListWrap)) {
+                        const halfWidth = window.innerWidth / 2
+                        const halfheight = window.innerHeight / 2
+                        
+                        storiesListWrap.addEventListener('click', (e) => {
+                            if (this.isMobile && this.swicthHistoryType === 'vertically') {
+                                if (e.clientY > halfheight) {
+                                    this.model._switchRight(storiesGroup)
+                                } else {
+                                    this.model._switchLeft(storiesGroup)
+                                }
+                            } else {
+                                if (e.clientX > halfWidth) {
+                                    this.model._switchRight(storiesGroup)
+                                } else {
+                                    this.model._switchLeft(storiesGroup)
+                                }
+                            }
+                        })
+                    }
+
+                    this.listenerSwitchClick.add(storiesListWrap)
                 },
 
                 _switchHistory(storyPositionY, storyPositionX, storiesGroup) {
@@ -410,7 +466,12 @@ class WebasystStories {
                     this.buttons.children[this.indexStory].classList.add('active')
 
                     if (this.isMobile) {
-                        this.storiesList.style.transform = `translateY(-${storyPositionY}px)`
+                        if (this.swicthHistoryType === 'vertically') {
+                            this.storiesList.style.transform = `translateY(-${storyPositionY}px)`
+                        } else {
+                            this.storiesList.style.transform = `translateX(-${storyPositionX}px)`
+                        }  
+                        
                         this.model.switchSwipe(storiesGroup)
                     } else {
                         this.storiesList.style.transform = `translateX(-${storyPositionX}px)`
@@ -470,7 +531,7 @@ class WebasystStories {
                     // Переключение истории вправо
                     if (this.indexStory < storiesLength) {
                         this.storyPositionX = this.storyWidth * this.indexStory
-                        this.storyPositionY = this.windowHeight * this.indexStory
+                        this.storyPositionY = this.storyHeight * this.indexStory
                         this.model._switchHistory(this.storyPositionY, this.storyPositionX, storiesGroup)
                     }
 
@@ -511,7 +572,7 @@ class WebasystStories {
                     // Переключение истории в лево
                     if (this.indexStory >= 0) {
                         this.storyPositionX = this.storyWidth * this.indexStory
-                        this.storyPositionY = this.windowHeight * this.indexStory
+                        this.storyPositionY = this.storyHeight * this.indexStory
                         this.model._switchHistory(this.storyPositionY, this.storyPositionX, storiesGroup)
                     }
                 },
@@ -545,17 +606,28 @@ class WebasystStories {
                     return result
                 },
 
-                _getElems(elem, className) {
+                _getElems(elem, className, attr) {
                     let result = []
                     function findELem(goal) {
                         for (let index = 0; index < goal.children.length; index++) {
                             const element = goal.children[index]
                             const regExp = new RegExp(className + '$', 'gi')
-                            if (element.className && regExp.test(element.className)) {
-                                result.push(element)
-                                return
-                            } else {
-                                findELem(element)
+                            switch (attr) {
+                                case 'class':
+                                    if (element.className && regExp.test(element.className)) {
+                                        result.push(element)
+                                    } else {
+                                        findELem(element)
+                                    }
+                                    break;
+                            
+                                case 'tag':
+                                    if (element.tagName && regExp.test(element.tagName)) {
+                                        result.push(element)
+                                    } else {
+                                        findELem(element)
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -657,6 +729,7 @@ class WebasystStories {
                             video.play()
                             playIcon.style.display = 'none'
                             video.style.opacity = ''
+                            clearInterval(this.timerIndicator)
                             this.model.timerSwitch(this.storiesGroup)
                         } else {
                             video.pause()
@@ -767,6 +840,8 @@ class WebasystStories {
                         let positionMoveX = 0
                         let currentPositionX = 0
 
+                        const previewsWidthViewPortOut = this.storiesSection.offsetWidth - this.previewsWidth
+
                         const move = (e) => {
                             previews.style.cursor = 'grabbing'
                             differenceX = e.clientX - startX
@@ -795,9 +870,14 @@ class WebasystStories {
                                 this.previewsMoveEvent = true
                             }
 
-                            if (positionMoveX > 0) {
+                            if (currentPositionX > 0) {
                                 this.previews.style.transform = `translateX(0px)`
                                 currentPositionX = 0
+                            }
+
+                            if (currentPositionX < previewsWidthViewPortOut) {
+                                this.previews.style.transform = `translateX(${previewsWidthViewPortOut}px)`
+                                currentPositionX = previewsWidthViewPortOut
                             }
 
                             differenceX = 0
@@ -820,6 +900,8 @@ class WebasystStories {
                         let touchDifferenceX = 0
                         let currentPositionX = 0
                         let positionMoveX = 0
+
+                        const previewsWidthViewPortOut = this.storiesSection.offsetWidth - this.previewsWidth
 
                         previews.addEventListener('touchstart', function (e) {
                             touchStartX = e.touches[0].clientX
@@ -844,37 +926,40 @@ class WebasystStories {
                                 this.previewsMoveEvent = true
                             }
 
-                            if (positionMoveX > 0) {
+                            if (currentPositionX > 0) {
                                 this.previews.style.transform = `translateX(0px)`
                                 currentPositionX = 0
                             }
 
-                            // if (positionMoveX < (100 - this.previewsWidth)) {
-                            //     this.previews.style.transform = `translateX(0px)`
-                            //     currentPositionX = 0
-                            // }
+
+                            if (currentPositionX < previewsWidthViewPortOut) {
+                                this.previews.style.transform = `translateX(${previewsWidthViewPortOut}px)`
+                                currentPositionX = previewsWidthViewPortOut
+                            }
 
                             touchDifferenceX = 0
                         })
 
                     }
 
-                    switchDrag(this.previews)
-                    switchSwipe(this.previews)
-
                     const previewsArr = this.previews.children
                     const storiesArr = this.storiesGroups.children
-                    this.previewsWidth = 0
-
+ 
                     for (let index = 0; index < previewsArr.length; index++) {
+                        const storyStyle = getComputedStyle(previewsArr[index])
+                        const storyMarginR = Number(storyStyle.marginRight.replace(/[^0-9]*$/, ''))
                         this.model.addClickPreview(previewsArr[index], storiesArr[index], index)
-                        this.previewsWidth += previewsArr[index].offsetWidth
+                        this.previewsWidth += previewsArr[index].offsetWidth + storyMarginR
                     }
 
                     if (this.isMobile) this.storiesSection.classList.add('mobile')
+                    this.storiesSection.setAttribute('data-switch', this.swicthHistoryType)
 
                     this.previews.style.width = this.previewsWidth + 'px'
+                    this.storiesSection.style.maxWidth = this.previewsWidth + 'px'
 
+                    switchDrag(this.previews)
+                    switchSwipe(this.previews)
                 },
 
             },
@@ -909,9 +994,10 @@ class WebasystStories {
         storiesSelector: '[data-stories-section="1"]',
         previewsSelector: '[data-stories-previews="1"]',
         storySelector: '[data-stories-groups="1"]',
-        timer: 1,
+        timer: 0,
         timerSpeed: '10',
         isMobile: 0,
+        swicthHistoryType: 'horizontally' // horizontally, vertically
     }
     new WebasystStories(webasystStoriesSettings)
 
@@ -922,6 +1008,7 @@ class WebasystStories {
         timer: 1,
         timerSpeed: '10',
         isMobile: 1,
+        swicthHistoryType: 'horizontally' // horizontally, vertically
     }
     new WebasystStories(webasystStoriesSettings2)
 
