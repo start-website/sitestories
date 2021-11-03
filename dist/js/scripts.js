@@ -3888,7 +3888,7 @@ var webasystStoriesSettings = {
   storiesSelector: '[data-stories-section="1"]',
   previewsSelector: '[data-stories-previews="1"]',
   storySelector: '[data-stories-groups="1"]',
-  timer: 0,
+  timer: 1,
   timerSpeed: '10',
   isMobile: 0,
   swicthHistoryType: 'horizontally' // horizontally, vertically
