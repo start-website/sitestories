@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+.webasyst-stories {
+  margin: 0 auto;
+}
+
 .webasyst-stories__previews-wrap {
   overflow: hidden;
 }
