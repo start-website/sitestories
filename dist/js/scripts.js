@@ -2951,6 +2951,7 @@ var WebasystStories = function WebasystStories(props) {
   this.buttonsLine = '';
   this.slideType = '';
   this.currentVideo = '';
+  this.dragSwipeActive = false;
   this.timerIndicator = '';
   this.previewsMoveEvent = false;
   this.switchStoryEvent = false;
@@ -2989,6 +2990,13 @@ var WebasystStories = function WebasystStories(props) {
       this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right');
       this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left');
       this.storiesList.children[0].classList.add('active');
+
+      this.model._addElemSrc(this.storiesList.children[0]);
+
+      if (this.storiesList.children[1]) {
+        this.model._addElemSrc(this.storiesList.children[1]);
+      }
+
       this.buttons.children[0].classList.add('active');
       this.storiesList.style.transform = 'translate(0px, 0px)';
       this.indexStory = 0;
@@ -3033,7 +3041,6 @@ var WebasystStories = function WebasystStories(props) {
 
       this.model.arrowsSwitch(storiesGroup);
       this.model.buttonsSwitch(storiesGroup);
-      this.model.switchClick(this.storiesListWrap, storiesGroup);
       this.model.timerSwitch(storiesGroup);
 
       this.model._checkSlideEnd();
@@ -3044,6 +3051,7 @@ var WebasystStories = function WebasystStories(props) {
         this.model.switchDrag(storiesGroup);
       }
 
+      this.model.switchClick(this.storiesListWrap, storiesGroup);
       window.addEventListener('resize', function () {
         if (_this.isMobile) {
           _this.storiesListWrap.style.width = window.innerWidth + 'px';
@@ -3239,6 +3247,7 @@ var WebasystStories = function WebasystStories(props) {
               _this5.model._switchRight(storiesGroup);
 
               _this5.switchStoryEvent = true;
+              _this5.dragSwipeActive = true;
             } // Движение влево
 
 
@@ -3246,6 +3255,7 @@ var WebasystStories = function WebasystStories(props) {
               _this5.model._switchLeft(storiesGroup);
 
               _this5.switchStoryEvent = true;
+              _this5.dragSwipeActive = true;
             }
 
             differenceX = 0;
@@ -3259,6 +3269,7 @@ var WebasystStories = function WebasystStories(props) {
           story.addEventListener('mouseleave', function () {
             _this5.storiesList.style.transform = "translateX(-".concat(_this5.storyPositionX, "px)");
             story.removeEventListener('mousemove', move);
+            _this5.dragSwipeActive = false;
           });
 
           _this5.listenerDragsFunc.add(story);
@@ -3297,18 +3308,21 @@ var WebasystStories = function WebasystStories(props) {
           }
 
           _this6.switchStoryEvent = false;
+          _this6.dragSwipeActive = false;
 
           if (_this6.swicthHistoryType === 'vertically') {
             if (touchDifferenceY > 50) {
               _this6.model._switchRight(storiesGroup);
 
               _this6.switchStoryEvent = true;
+              _this6.dragSwipeActive = true;
             }
 
             if (touchDifferenceY < -50) {
               _this6.model._switchLeft(storiesGroup);
 
               _this6.switchStoryEvent = true;
+              _this6.dragSwipeActive = true;
             }
           } else {
             // Движение вправо
@@ -3316,6 +3330,7 @@ var WebasystStories = function WebasystStories(props) {
               _this6.model._switchRight(storiesGroup);
 
               _this6.switchStoryEvent = true;
+              _this6.dragSwipeActive = true;
             } // Движение влево
 
 
@@ -3323,6 +3338,7 @@ var WebasystStories = function WebasystStories(props) {
               _this6.model._switchLeft(storiesGroup);
 
               _this6.switchStoryEvent = true;
+              _this6.dragSwipeActive = true;
             }
           }
 
@@ -3339,16 +3355,22 @@ var WebasystStories = function WebasystStories(props) {
         var halfWidth = window.innerWidth / 2;
         var halfheight = window.innerHeight / 2;
         storiesListWrap.addEventListener('click', function (e) {
+          if (_this7.dragSwipeActive) return;
+
           if (_this7.isMobile && _this7.swicthHistoryType === 'vertically') {
-            if (e.clientY > halfheight) {
+            if (e.clientY - 30 > halfheight) {
               _this7.model._switchRight(storiesGroup);
-            } else {
+            }
+
+            if (e.clientY + 30 < halfheight) {
               _this7.model._switchLeft(storiesGroup);
             }
           } else {
-            if (e.clientX > halfWidth) {
+            if (e.clientX - 30 > halfWidth) {
               _this7.model._switchRight(storiesGroup);
-            } else {
+            }
+
+            if (e.clientX + 30 < halfWidth) {
               _this7.model._switchLeft(storiesGroup);
             }
           }
@@ -3361,6 +3383,12 @@ var WebasystStories = function WebasystStories(props) {
       this.model._removeClasses(this.storiesList.children, 'active');
 
       this.storiesList.children[this.indexStory].classList.add('active');
+
+      this.model._addElemSrc(this.storiesList.children[this.indexStory]);
+
+      if (this.storiesList.children[this.indexStory + 1]) {
+        this.model._addElemSrc(this.storiesList.children[this.indexStory + 1]);
+      }
 
       if (this.currentVideo) {
         this.model._videoStop(this.storiesGroupBGVideo, this.currentVideo);
@@ -3465,7 +3493,8 @@ var WebasystStories = function WebasystStories(props) {
       }
 
       if (storiesGroupEnd && storiesListEnd) {
-        this.indexStory = storiesLength - 1;
+        //this.indexStory = storiesLength - 1
+        this.model.closeStoriesGroup();
       }
     },
     _switchLeft: function _switchLeft(storiesGroup) {
@@ -3565,12 +3594,12 @@ var WebasystStories = function WebasystStories(props) {
 
       function getSrcMedia(elems) {
         elems.forEach(function (elem) {
-          if (elem.src) {
+          if (elem.hasAttribute('data-sitestories-src')) {
             tagsArr.forEach(function (tag) {
               var regExp = new RegExp('^' + tag + '$', 'gi');
 
               if (regExp.test(elem.tagName)) {
-                result.push(elem.src);
+                result.push(elem.getAttribute('data-sitestories-src'));
                 return;
               }
             });
@@ -3635,12 +3664,13 @@ var WebasystStories = function WebasystStories(props) {
             });
           }
 
-          this.currentVideo.play();
           break;
       }
     },
     _controlVideo: function _controlVideo(video, videoBG, soundIcon, playIcon) {
       var _this12 = this;
+
+      video.load();
 
       var videoPlay = function videoPlay(video) {
         if (_this12.switchStoryEvent) return;
@@ -3745,6 +3775,24 @@ var WebasystStories = function WebasystStories(props) {
       } else {
         this.arrowRight.style.opacity = '';
       }
+    },
+    _addElemSrc: function _addElemSrc(container) {
+      function findELem(elem) {
+        for (var index = 0; index < elem.children.length; index++) {
+          var element = elem.children[index];
+
+          if (element.hasAttribute('data-sitestories-src')) {
+            element.setAttribute('src', element.getAttribute('data-sitestories-src'));
+          } else if (element.hasAttribute('data-sitestories-poster')) {
+            element.setAttribute('poster', element.getAttribute('data-sitestories-poster'));
+            findELem(element);
+          } else {
+            findELem(element);
+          }
+        }
+      }
+
+      findELem(container);
     }
   }, this.controller = {
     storiesControl: function storiesControl() {
@@ -3795,6 +3843,8 @@ var WebasystStories = function WebasystStories(props) {
 
           differenceX = 0;
           previews.removeEventListener('mousemove', move);
+        }, {
+          passive: true
         }); // Наведение нажатой кнопки мыши на историю
 
         previews.addEventListener('mouseenter', function () {
@@ -3803,6 +3853,8 @@ var WebasystStories = function WebasystStories(props) {
 
         previews.addEventListener('mouseleave', function () {
           previews.removeEventListener('mousemove', move);
+        }, {
+          passive: true
         });
       };
 
@@ -3815,11 +3867,15 @@ var WebasystStories = function WebasystStories(props) {
         previews.addEventListener('touchstart', function (e) {
           touchStartX = e.touches[0].clientX;
           this.previewsMoveEvent = false;
+        }, {
+          passive: true
         });
         previews.addEventListener('touchmove', function (e) {
           touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX);
           positionMoveX = currentPositionX - touchDifferenceX;
           _this13.previews.style.transform = "translateX(".concat(positionMoveX, "px)");
+        }, {
+          passive: true
         });
         previews.addEventListener('touchend', function (e) {
           currentPositionX = positionMoveX;
@@ -3843,6 +3899,8 @@ var WebasystStories = function WebasystStories(props) {
           }
 
           touchDifferenceX = 0;
+        }, {
+          passive: true
         });
       };
 
@@ -3850,10 +3908,11 @@ var WebasystStories = function WebasystStories(props) {
       var storiesArr = this.storiesGroups.children;
 
       for (var index = 0; index < previewsArr.length; index++) {
-        var storyStyle = getComputedStyle(previewsArr[index]);
+        var preview = previewsArr[index];
+        var storyStyle = getComputedStyle(preview);
         var storyMarginR = Number(storyStyle.marginRight.replace(/[^0-9]*$/, ''));
-        this.model.addClickPreview(previewsArr[index], storiesArr[index], index);
-        this.previewsWidth += previewsArr[index].offsetWidth + storyMarginR;
+        this.model.addClickPreview(preview, storiesArr[index], index);
+        this.previewsWidth += preview.offsetWidth + storyMarginR;
       }
 
       if (this.isMobile) this.storiesSection.classList.add('mobile');
@@ -3884,28 +3943,30 @@ var WebasystStories = function WebasystStories(props) {
   this.app.init.call(this);
 };
 
-var webasystStoriesSettings = {
-  storiesSelector: '[data-stories-section="1"]',
-  previewsSelector: '[data-stories-previews="1"]',
-  storySelector: '[data-stories-groups="1"]',
-  timer: 1,
-  timerSpeed: '10',
-  isMobile: 0,
-  swicthHistoryType: 'horizontally' // horizontally, vertically
+window.addEventListener('load', function () {
+  var webasystStoriesSettings = {
+    storiesSelector: '[data-stories-section="1"]',
+    previewsSelector: '[data-stories-previews="1"]',
+    storySelector: '[data-stories-groups="1"]',
+    timer: 1,
+    timerSpeed: '10',
+    isMobile: 0,
+    swicthHistoryType: 'horizontally' // horizontally, vertically
 
-};
-new WebasystStories(webasystStoriesSettings);
-var webasystStoriesSettings2 = {
-  storiesSelector: '[data-stories-section="2"]',
-  previewsSelector: '[data-stories-previews="2"]',
-  storySelector: '[data-stories-groups="2"]',
-  timer: 1,
-  timerSpeed: '10',
-  isMobile: 1,
-  swicthHistoryType: 'horizontally' // horizontally, vertically
+  };
+  new WebasystStories(webasystStoriesSettings);
+  var webasystStoriesSettings2 = {
+    storiesSelector: '[data-stories-section="2"]',
+    previewsSelector: '[data-stories-previews="2"]',
+    storySelector: '[data-stories-groups="2"]',
+    timer: 1,
+    timerSpeed: '10',
+    isMobile: 1,
+    swicthHistoryType: 'horizontally' // horizontally, vertically
 
-};
-new WebasystStories(webasystStoriesSettings2);
+  };
+  new WebasystStories(webasystStoriesSettings2);
+});
 
 /***/ }),
 /* 104 */

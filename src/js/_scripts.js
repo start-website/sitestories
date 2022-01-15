@@ -28,6 +28,7 @@ class WebasystStories {
         this.buttonsLine = ''
         this.slideType = ''
         this.currentVideo = ''
+        this.dragSwipeActive = false
         this.timerIndicator = ''
         this.previewsMoveEvent = false
         this.switchStoryEvent = false
@@ -68,6 +69,12 @@ class WebasystStories {
                     this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right')
                     this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left')
                     this.storiesList.children[0].classList.add('active')
+                    this.model._addElemSrc(this.storiesList.children[0])
+
+                    if (this.storiesList.children[1]) {
+                        this.model._addElemSrc(this.storiesList.children[1])
+                    }
+                    
                     this.buttons.children[0].classList.add('active')
                     this.storiesList.style.transform = 'translate(0px, 0px)'
                     this.indexStory = 0
@@ -114,7 +121,6 @@ class WebasystStories {
 
                     this.model.arrowsSwitch(storiesGroup)
                     this.model.buttonsSwitch(storiesGroup)
-                    this.model.switchClick(this.storiesListWrap, storiesGroup)
                     this.model.timerSwitch(storiesGroup)
                     this.model._checkSlideEnd()
 
@@ -123,6 +129,8 @@ class WebasystStories {
                     } else {
                         this.model.switchDrag(storiesGroup)
                     }
+
+                    this.model.switchClick(this.storiesListWrap, storiesGroup)
 
                     window.addEventListener('resize', () => {
                         if (this.isMobile) {
@@ -321,12 +329,14 @@ class WebasystStories {
                                 if (differenceX < -50) {
                                     this.model._switchRight(storiesGroup)
                                     this.switchStoryEvent = true
+                                    this.dragSwipeActive = true
                                 }
 
                                 // Движение влево
                                 if (differenceX > 50) {
                                     this.model._switchLeft(storiesGroup)
                                     this.switchStoryEvent = true
+                                    this.dragSwipeActive = true
                                 }
 
                                 differenceX = 0
@@ -342,6 +352,7 @@ class WebasystStories {
                             story.addEventListener('mouseleave', () => {
                                 this.storiesList.style.transform = `translateX(-${this.storyPositionX}px)`
                                 story.removeEventListener('mousemove', move);
+                                this.dragSwipeActive = false
                             })
 
                             this.listenerDragsFunc.add(story)
@@ -382,28 +393,33 @@ class WebasystStories {
                             }
 
                             this.switchStoryEvent = false
+                            this.dragSwipeActive = false
 
                             if (this.swicthHistoryType === 'vertically') {
                                 if (touchDifferenceY > 50) {
                                     this.model._switchRight(storiesGroup)
                                     this.switchStoryEvent = true
+                                    this.dragSwipeActive = true
                                 }
     
                                 if (touchDifferenceY < -50) {
                                     this.model._switchLeft(storiesGroup)
                                     this.switchStoryEvent = true
+                                    this.dragSwipeActive = true
                                 }
                             } else {
                                 // Движение вправо
                                 if (touchDifferenceX > 50) {
                                     this.model._switchRight(storiesGroup)
                                     this.switchStoryEvent = true
+                                    this.dragSwipeActive = true
                                 }
 
                                 // Движение влево
                                 if (touchDifferenceX < -50) {
                                     this.model._switchLeft(storiesGroup)
                                     this.switchStoryEvent = true
+                                    this.dragSwipeActive = true
                                 }
                             }
 
@@ -422,16 +438,20 @@ class WebasystStories {
                         const halfheight = window.innerHeight / 2
                         
                         storiesListWrap.addEventListener('click', (e) => {
+                            if (this.dragSwipeActive) return
+
                             if (this.isMobile && this.swicthHistoryType === 'vertically') {
-                                if (e.clientY > halfheight) {
+                                if ((e.clientY - 30) > halfheight) {
                                     this.model._switchRight(storiesGroup)
-                                } else {
+                                } 
+                                if ((e.clientY + 30) < halfheight) {
                                     this.model._switchLeft(storiesGroup)
                                 }
                             } else {
-                                if (e.clientX > halfWidth) {
+                                if ((e.clientX - 30) > halfWidth) {
                                     this.model._switchRight(storiesGroup)
-                                } else {
+                                } 
+                                if ((e.clientX + 30) < halfWidth) {
                                     this.model._switchLeft(storiesGroup)
                                 }
                             }
@@ -444,6 +464,11 @@ class WebasystStories {
                 _switchHistory(storyPositionY, storyPositionX, storiesGroup) {
                     this.model._removeClasses(this.storiesList.children, 'active')
                     this.storiesList.children[this.indexStory].classList.add('active')
+                    this.model._addElemSrc(this.storiesList.children[this.indexStory])
+
+                    if (this.storiesList.children[this.indexStory +1]) {
+                        this.model._addElemSrc(this.storiesList.children[this.indexStory +1])
+                    }
 
                     if (this.currentVideo) {
                         this.model._videoStop(this.storiesGroupBGVideo, this.currentVideo)
@@ -486,6 +511,7 @@ class WebasystStories {
                     this.indexStory = 0
                     this.model.closeStoriesGroup()
                     this.model.openStoriesGroup(this.storiesGroups.children[this.indexGroup], this.indexGroup)
+
                     if (!this.isMobile) {
                         this.storiesList.children[this.indexStory].classList.add('switch-right')
                         setTimeout(() => {
@@ -504,6 +530,7 @@ class WebasystStories {
                             btn.style.width = '100%'
                         }
                     })
+
                     if (!this.isMobile) {
                         this.storiesList.children[this.indexStory].classList.add('switch-left')
                         setTimeout(() => {
@@ -543,7 +570,8 @@ class WebasystStories {
                     }
 
                     if (storiesGroupEnd && storiesListEnd) {
-                        this.indexStory = storiesLength - 1
+                        //this.indexStory = storiesLength - 1
+                        this.model.closeStoriesGroup()
                     }
                 },
 
@@ -641,11 +669,12 @@ class WebasystStories {
 
                     function getSrcMedia(elems) {
                         elems.forEach(elem => {
-                            if (elem.src) {
+                            if (elem.hasAttribute('data-sitestories-src')) {
                                 tagsArr.forEach(tag => {
                                     const regExp = new RegExp('^' + tag + '$', 'gi')
+                        
                                     if (regExp.test(elem.tagName)) {
-                                        result.push(elem.src)
+                                        result.push(elem.getAttribute('data-sitestories-src'))
                                         return
                                     }
                                 })
@@ -714,14 +743,14 @@ class WebasystStories {
                                         // Show paused UI.
                                     });
                             }
-
-                            this.currentVideo.play()
                             break
                     }
 
                 },
 
                 _controlVideo(video, videoBG, soundIcon, playIcon) {
+                    video.load()
+
                     const videoPlay = (video) => {
                         if (this.switchStoryEvent) return
 
@@ -829,6 +858,25 @@ class WebasystStories {
                     } else {
                         this.arrowRight.style.opacity = ''
                     }
+                },
+
+                _addElemSrc(container) {
+                    function findELem(elem) {
+                        for (let index = 0; index < elem.children.length; index++) {
+                            const element = elem.children[index]
+                            
+                            if (element.hasAttribute('data-sitestories-src')) {
+                                element.setAttribute('src', element.getAttribute('data-sitestories-src'))
+                            } else if (element.hasAttribute('data-sitestories-poster')) {
+                                element.setAttribute('poster', element.getAttribute('data-sitestories-poster'))
+                                findELem(element)
+                            } else {
+                                findELem(element)
+                            }
+                        }
+                    }
+
+                    findELem(container)
                 }
             },
 
@@ -882,7 +930,7 @@ class WebasystStories {
 
                             differenceX = 0
                             previews.removeEventListener('mousemove', move)
-                        })
+                        }, {passive: true})
 
                         // Наведение нажатой кнопки мыши на историю
                         previews.addEventListener('mouseenter', () => {
@@ -892,7 +940,7 @@ class WebasystStories {
                         // Покидание мыши с истории
                         previews.addEventListener('mouseleave', () => {
                             previews.removeEventListener('mousemove', move);
-                        })
+                        }, {passive: true})
                     }
 
                     const switchSwipe = (previews) => {
@@ -906,14 +954,14 @@ class WebasystStories {
                         previews.addEventListener('touchstart', function (e) {
                             touchStartX = e.touches[0].clientX
                             this.previewsMoveEvent = false
-                        })
+                        }, {passive: true})
 
                         previews.addEventListener('touchmove', (e) => {
                             touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX)
 
                             positionMoveX = currentPositionX - touchDifferenceX
                             this.previews.style.transform = `translateX(${positionMoveX}px)`
-                        })
+                        }, {passive: true})
 
                         previews.addEventListener('touchend', (e) => {
                             currentPositionX = positionMoveX
@@ -938,7 +986,7 @@ class WebasystStories {
                             }
 
                             touchDifferenceX = 0
-                        })
+                        }, {passive: true})
 
                     }
 
@@ -946,10 +994,11 @@ class WebasystStories {
                     const storiesArr = this.storiesGroups.children
  
                     for (let index = 0; index < previewsArr.length; index++) {
-                        const storyStyle = getComputedStyle(previewsArr[index])
+                        const preview = previewsArr[index]
+                        const storyStyle = getComputedStyle(preview)
                         const storyMarginR = Number(storyStyle.marginRight.replace(/[^0-9]*$/, ''))
-                        this.model.addClickPreview(previewsArr[index], storiesArr[index], index)
-                        this.previewsWidth += previewsArr[index].offsetWidth + storyMarginR
+                        this.model.addClickPreview(preview, storiesArr[index], index)
+                        this.previewsWidth += preview.offsetWidth + storyMarginR
                     }
 
                     if (this.isMobile) this.storiesSection.classList.add('mobile')
@@ -989,7 +1038,7 @@ class WebasystStories {
     }
 }
 
-
+window.addEventListener('load', function() {
     const webasystStoriesSettings = {
         storiesSelector: '[data-stories-section="1"]',
         previewsSelector: '[data-stories-previews="1"]',
@@ -1011,6 +1060,8 @@ class WebasystStories {
         swicthHistoryType: 'horizontally' // horizontally, vertically
     }
     new WebasystStories(webasystStoriesSettings2)
+})
+    
 
 
 
