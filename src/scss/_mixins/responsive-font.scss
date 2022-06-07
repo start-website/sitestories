@@ -17,7 +17,7 @@
   // каждом увеличении вьюпорта на 1px);
   
   // m = (y2 - y1) / (x2 - x1)
-  $m: ($fontLarge - $fontSmall) / ($widthLarge - $widthSmall);
+  $m: calc(($fontLarge - $fontSmall) / ($widthLarge - $widthSmall));
   // b = y1 - m × x1
   $b: $fontSmall - ($m * $widthSmall);
 

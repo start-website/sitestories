@@ -204,7 +204,8 @@ class WebasystStories {
                     const buttonWidth = this.storyWidth / storiesLength - 15
                     this.buttons.style.width = this.storyWidth + 'px'
 
-                    this.buttons.children.forEach((button, btnInx) => {
+                    for (let btnInx = 0; btnInx < this.buttons.children.length; btnInx++) {
+                        const button = this.buttons.children[btnInx];
                         button.style.width = buttonWidth + 'px'
 
                         if (!this.listenerButtons.has(button)) {
@@ -232,19 +233,21 @@ class WebasystStories {
 
                             this.listenerButtons.add(button)
                         }
-
-                    })
+                    }
                 },
 
                 arrowsSwitch(storiesGroup) {
                     let storiesWidth = 0
                     let storiesHeight = 0
-                    this.storiesList.children.forEach(story => {
+
+                    for (let i = 0; i < this.storiesList.children.length; i++) {
+                        const story = this.storiesList.children[i];
                         story.style.width = this.storyWidth + 'px'
                         story.style.height = this.storyHeight + 'px'
                         storiesWidth += this.storyWidth
                         storiesHeight += this.storyHeight
-                    })
+                        
+                    }
 
                     if (this.isMobile && this.swicthHistoryType === 'vertically') {
                         this.storiesList.style.height = storiesHeight + 'px'
@@ -301,7 +304,8 @@ class WebasystStories {
                     let differenceX
                     let positionMoveX
 
-                    this.storiesList.children.forEach(story => {
+                    for (let i = 0; i < this.storiesList.children.length; i++) {
+                        const story = this.storiesList.children[i];
                         const move = (e) => {
                             story.style.cursor = 'grabbing'
                             differenceX = e.clientX - startX
@@ -357,8 +361,7 @@ class WebasystStories {
 
                             this.listenerDragsFunc.add(story)
                         }
-
-                    })
+                    }
                 },
 
                 switchSwipe(storiesGroup) {
@@ -606,9 +609,10 @@ class WebasystStories {
                 },
 
                 _removeClasses(elems, className) {
-                    elems.forEach(elem => {
+                    for (let i = 0; i < elems.length; i++) {
+                        const elem = elems[i];
                         elem.classList.remove(className)
-                    })
+                    }
                 },
 
                 _getElem(elem, className) {
@@ -668,7 +672,9 @@ class WebasystStories {
                     let result = []
 
                     function getSrcMedia(elems) {
-                        elems.forEach(elem => {
+                        for (let i = 0; i < elems.length; i++) {
+                            const elem = elems[i];
+                            
                             if (elem.hasAttribute('data-sitestories-src')) {
                                 tagsArr.forEach(tag => {
                                     const regExp = new RegExp('^' + tag + '$', 'gi')
@@ -681,8 +687,9 @@ class WebasystStories {
                             } else {
                                 getSrcMedia(elem.children)
                             }
-                        })
+                        }
                     }
+
                     getSrcMedia(container.children)
 
                     return result
@@ -1043,7 +1050,7 @@ window.addEventListener('load', function() {
         storiesSelector: '[data-stories-section="1"]',
         previewsSelector: '[data-stories-previews="1"]',
         storySelector: '[data-stories-groups="1"]',
-        timer: 1,
+        timer: 0,
         timerSpeed: '10',
         isMobile: 0,
         swicthHistoryType: 'horizontally' // horizontally, vertically
@@ -1061,7 +1068,3 @@ window.addEventListener('load', function() {
     }
     new WebasystStories(webasystStoriesSettings2)
 })
-    
-
-
-

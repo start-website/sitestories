@@ -1,40 +1,71 @@
+var el = '[data-content-stories="' + content_id + '"]';
+var prop = {};
+var rule_params;
+
+if (params.rule) {
+    if (params.rule.rule_params) {
+        rule_params = params.rule.rule_params
+
+        if (params.rule.rule_params.stories) {
+            prop = params.rule.rule_params.stories;
+        }
+    }
+}
+
 var app = new Vue({
     delimiters: ['%%', '%%'],
-    el: '.start',
+    el: el,
     data: {
-        plugin_url: document.querySelector('#plugin_url').value,
-        path_public_files: document.querySelector('#path_public_files').value + '/',
-        groups_count: Number(document.querySelector('#groups_count').value),
-        url: document.querySelector('#url').value,
+        path_public_files: varsPlugin.path_public_files,
+        shop_url: varsPlugin.shop_url,
         custom_css_instruction: false,
+        mobile_fields: false,
         loading: true,
         button_save_disabled: false,
         error_image: false,
         error_video: false,
+        drag: false,
+        group_previews_active: true,
+        custom_css: '',
+        rule_params: rule_params ? rule_params : {
+            stories: {
+                bottom_indent: 0,
+                preview_height: 200,
+                width_group: 150,
+                margin_group: 0,
+                round_corners: 0,
+                stroke_color: 'royalblue',
+                group_count: ['1'],
+                group_active: [],
+                story_active: [],
 
-        // Settings default
-        settings: {
-            custom_css: '',
-            'groups_1_group_count_t-number': 1,
-            'groups_1_group_1_stories_count_t-number': 1,
-            'groups_1_group_1_story_1_t-number': false,
-            groups_1_container_width: 1200,
-            groups_1_margin_section: '',
-            groups_1_tab_active: 1,
-            groups_1_height_group: 200,
-            groups_1_width_group: 150,
-            groups_1_margin_group: 30,
-            groups_1_round_corners: 10,
-            groups_1_stroke_color: 'royalblue',
+                bottom_indent_mobile: 0,
+                preview_height_mobile: 200,
+                width_group_mobile: 150,
+                margin_group_mobile: 0,
+                round_corners_mobile: 0,
+                stroke_color_mobile: 'royalblue',
+                swipe_movement: 'horizontally',
 
-            groups_1_margin_section_mobile: '',
-            groups_1_height_group_mobile: 100,
-            groups_1_width_group_mobile: 100,
-            groups_1_round_corners_mobile: 5,
-            groups_1_stroke_color_mobile: 'royalblue',
-            groups_1_margin_group_mobile: 10,
-            groups_1_heading_mobile: false,
-        }
+                group_1: {
+                    story_count: ['1'],
+                    group_content_active: false,
+                    story_1: {
+                        story_content_active: false,
+                        story_title: '',
+                        story_desc: '',
+                        text_button: '',
+                        css_button: '',
+                        link: '',
+                        start_date: '',
+                        start_date_time: '',
+                        end_date: '',
+                        end_date_time: '',
+                    }
+                }
+            },
+        },
+
     },
     filters: {
         bool: function (value) {
@@ -48,220 +79,224 @@ var app = new Vue({
             value = Number(value)
             return value
         },
+
+        json: function (value) {
+            if (!value) return ''
+            value = JSON.parse(value)
+            return value
+        }
     },
     methods: {
         addGroup() {
-            this.groups_count++
+            function getMaxOfArray(numArray) {
+                return Math.max.apply(null, numArray);
+            }
 
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_count_t-number', 1)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_group_count_t-number', 1)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_active', true)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_stories_count_t-number', 1)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_group_1_story_1_t-number', false)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_tab_active', 1)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_container_width', 1200)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_section', '')
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_height_group', 200)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_stroke_color', 'royalblue')
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_width_group', 150)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_group', 30)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_round_corners', 10)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_section_mobile', '')
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_height_group_mobile', 100)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_stroke_color_mobile', 'royalblue')
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_width_group_mobile', 100)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_margin_group_mobile', 10)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_round_corners_mobile', 5)
-            Vue.set(this.settings, 'groups_' + this.groups_count + '_heading_mobile', false)
+            var uniq_key = getMaxOfArray(this.rule_params['stories']['group_count']) + 1
+
+            this.rule_params['stories']['group_count'].push(uniq_key)
+            Vue.set(this.rule_params['stories'], ['group_' + uniq_key], {
+                story_count: ['1'],
+                group_content_active: false,
+                story_1: {
+                    story_content_active: false,
+                    story_title: '',
+                    story_desc: '',
+                    text_button: '',
+                    css_button: '',
+                    link: '',
+                    start_date: '',
+                    start_date_time: '',
+                    startend_time: '',
+                    startend_time_time: '',
+                }
+            })
         },
 
         delGroup() {
-            if (this.groups_count > 1) {
-                const regExp = new RegExp('^groups_' + this.groups_count)
-
-                for (const item in this.settings) {
-                    if (this.settings.hasOwnProperty(item)) {
-                        if (regExp.test(item) && !/count/.test(item)) {
-                            console.log(item)
-                            this.settings[item] = ''
-                        }
-                    }
-                }
-                console.log(this.settings)
-                this.groups_count--
+            if (this.rule_params['stories']['group_count'].length > 1) {
+                this.rule_params['stories']['group_count'].pop()
             }
         },
 
-        selectTab(e, tabNumber, numberGroups) {
-            let tabButton = e.target.parentElement
-            if (e.target.tagName === 'LI') tabButton = e.target
-
-            const key = 'groups_' + numberGroups + '_tab_active'
-
-            this.settings[key] = tabNumber;
+        activeGroupContent(e, group_item) {
+            this.group_previews_active = false
+            Vue.set(this.rule_params['stories']['group_' + group_item], 'group_content_active', true)
         },
 
-        addTab(e, numberGroups) {
-            const groupCountKey = 'groups_' + numberGroups + '_group_count_t-number'
-            this.settings[groupCountKey]++
-
-            const groupActiveKey = 'groups_' + numberGroups + '_group_' + this.settings[groupCountKey] + '_active'
-            Vue.set(this.settings, groupActiveKey, true)
-
-            const storiesCountKey = 'groups_' + numberGroups + '_group_' + this.settings[groupCountKey] + '_stories_count_t-number'
-            Vue.set(this.settings, storiesCountKey, 1)
-
-            const storyNumberkey = 'groups_' + numberGroups + '_group_' + this.settings[groupCountKey] + '_story_1_t-number'
-            Vue.set(this.settings, storyNumberkey, false)
-
-            this.settings['groups_' + numberGroups + '_tab_active'] = this.settings[groupCountKey]
+        disableGroupContent(e, group_item) {
+            this.group_previews_active = true
+            Vue.set(this.rule_params['stories']['group_' + group_item], 'group_content_active', false)
         },
 
-        delTab(e, numberGroups) {
-            const groupCountKey = 'groups_' + numberGroups + '_group_count_t-number'
-            if (this.settings[groupCountKey] > 1) {
-                const regExp = new RegExp('^groups_' + numberGroups + '_group_' + this.settings[groupCountKey])
-
-                for (const item in this.settings) {
-                    if (this.settings.hasOwnProperty(item)) {
-                        if (regExp.test(item)) {
-                            console.log(item)
-                            this.settings[item] = ''
-                        }
-                    }
-                }
-
-                this.settings[groupCountKey]--
-                this.settings['groups_' + numberGroups + '_tab_active'] = this.settings[groupCountKey]
-            }
+        activeStoryContent(e, group_item, story_item) {
+            Vue.set(this.rule_params['stories']['group_' + group_item]['story_' + story_item], 'story_content_active', true)
         },
 
-        addStory(e, numberGroups, numberGroup) {
-            const storiesCountKey = 'groups_' + numberGroups + '_group_' + numberGroup + '_stories_count_t-number'
-
-            this.settings[storiesCountKey]++
-            Vue.set(this.settings, storiesCountKey, this.settings[storiesCountKey])
-
-            const storyNumberkey = 'groups_' + numberGroups + '_group_' + numberGroup + '_story_' + this.settings[storiesCountKey] + '_t-number'
-            Vue.set(this.settings, storyNumberkey, false)
+        disableStoryContent(e, group_item, story_item) {
+            e.stopPropagation()
+            Vue.set(this.rule_params['stories']['group_' + group_item]['story_' + story_item], 'story_content_active', false)
         },
 
-        delStory(e, numberGroups, numberGroup) {
-            const key = 'groups_' + numberGroups + '_group_' + numberGroup + '_stories_count_t-number'
+        addStory(e, group_item) {
+            var story_count = this.rule_params['stories']['group_' + group_item]['story_count'].length
+            this.rule_params['stories']['group_' + group_item]['story_count'].push(story_count + 1)
 
-            if (this.settings[key] > 1) {
-                const regExp = new RegExp('^groups_' + numberGroups + '_group_' + numberGroup + '_story_' + this.settings[key])
-
-                for (const item in this.settings) {
-                    if (this.settings.hasOwnProperty(item)) {
-                        if (regExp.test(item)) {
-                            this.settings[item] = ''
-                        }
-                    }
-                }
-
-                this.settings[key]--
-            }
-        },
-
-        storyShow(e, numberGroups, numberGroup, numberStory) {
-            const key = 'groups_' + numberGroups + '_group_' + numberGroup + '_story_' + numberStory + '_t-number'
-
-            Vue.set(this.settings, key, !this.settings[key])
-        },
-
-        delImageProduct(e, key) {
-            this.settings[key] = ''
-        },
-
-        checkImage(e) {
-            const valueElem = e.target.parentElement.parentElement
-            let hintError
-
-            for (let index = 0; index < valueElem.children.length; index++) {
-                const elem = valueElem.children[index]
-
-                if (elem.className && /hint-error/gi.test(elem.className)) {
-                    hintError = elem
-                }
-            }
-
-            if (e.target.value && !/(png|jpe?g|gif|svg|webp)$/i.test(e.target.value)) {
-                this.button_save_disabled = true
-                this.error_image = true
-                if (hintError) hintError.style.display = ''
-            } else {
-                this.button_save_disabled = false
-                this.error_image = false
-                if (hintError) hintError.style.display = 'none'
-            }
-        },
-
-        checkVideo(e) {
-            const valueElem = e.target.parentElement.parentElement
-            let hintError
-
-            for (let index = 0; index < valueElem.children.length; index++) {
-                const elem = valueElem.children[index]
-
-                if (elem.className && /hint-error/gi.test(elem.className)) {
-                    hintError = elem
-                }
-            }
-
-            if (e.target.value && !/(ogv|oga|ogx|ogg|mp4|webm|mkv)$/i.test(e.target.value)) {
-                this.button_save_disabled = true
-                this.error_video = true
-                if (hintError) hintError.style.display = ''
-            } else {
-                this.button_save_disabled = false
-                this.error_video = false
-                if (hintError) hintError.style.display = 'none'
-            }
-        },
-
-        openElem(e) {
-            if (!e.target.className || !/hidden-fields__heading/gi.test(e.target.className)) return
-
-            const h5 = e.target
-            const fields = e.target.parentNode.children[1]
-            const icon = h5.children[0]
-
-            if (/d-none/gi.test(fields.className)) {
-                fields.className = fields.className.replace(/\s(d-none)/, '')
-                icon.className = icon.className.replace(/rarr/gi, 'darr')
-            } else {
-                fields.className += ' d-none'
-                icon.className = icon.className.replace(/darr/gi, 'rarr')
-            }
-        },
-
-        pageReload() {
-            setTimeout(function () {
-                window.location.reload();
-            }, 500);
-        },
-    },
-    mounted: function () {
-        axios
-            .get(this.url + 'sitestories-settings/')
-            .then(response => {
-                const settingsDB = response.data.data.result
-
-                // Привидение к числу свойств t-number
-                for (const item in settingsDB) {
-                    if (settingsDB.hasOwnProperty(item)) {
-                        if (/_t-number/gi.test(item)) {
-                            settingsDB[item] = Number(settingsDB[item])
-                        }
-                    }
-                }
-
-                const settingsMerge = Object.assign({}, this.settings, settingsDB)
-                this.settings = settingsMerge
+            Vue.set(this.rule_params['stories']['group_' + group_item], 'story_' + (story_count + 1), {
+                story_content_active: false,
             })
-            .catch(error => console.log(error))
-            .finally(() => (this.loading = false))
-    }
+        },
 
+        delStory(e, group_item) {
+            if (this.rule_params['stories']['group_' + group_item]['story_count'].length > 1) {
+                this.rule_params['stories']['group_' + group_item]['story_count'].pop()
+            }
+        },
+
+
+        loadImage(e, obj, key) {
+            var file_name = e.target.files[0].name
+            Vue.set(obj, key + '_format', false)
+            Vue.set(obj, key + '_name', false)
+
+            var type_file = 'image'
+
+            if (/^video_story$/.test(key)) type_file = 'video'
+
+            if (!/(png|jpe?g|gif|svg|webp)$/i.test(file_name) && type_file !== 'video') {
+                Vue.set(obj, key + '_format', true)
+                return;
+            }
+
+            if (!/(ogv|oga|ogx|ogg|mp4|webm|mkv)$/i.test(file_name) && type_file === 'video') {
+                Vue.set(obj, key + '_format', true)
+                return;
+            }
+
+            if (/( |#|%|&|{|}|\\\|<|>|\?|\/|\$|:|@|\+|`|\||=)/i.test(file_name)) {
+                Vue.set(obj, key + '_name', true)
+                return;
+            }
+
+            var file = (e.target.files ? e.target.files[0] : null);
+
+            if (!file) return;
+
+            function getCookie(name) {
+                let matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+                return matches ? decodeURIComponent(matches[1]) : undefined;
+            }
+
+            var data = new FormData();
+            data.append('image', file);
+            data.append('type_file', type_file);
+            data.append('_csrf', getCookie('_csrf'));
+
+            var url = this.shop_url + '?plugin=sitestories&module=marketing&action=UploadImage'
+
+            axios({
+                method: 'post',
+                url: url,
+                data: data,
+                responseType: 'json',
+                responseEncoding: 'utf8',
+                withCredentials: true,
+            })
+                .then(function (response) {
+                    console.log('sitestories uploaded file: ', response);
+                    Vue.set(obj, key, file_name)
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+
+        delImage(e, obj, key) {
+            var file_name = obj[key]
+
+            if (!file_name) return
+
+            function getCookie(name) {
+                let matches = document.cookie.match(new RegExp(
+                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+                return matches ? decodeURIComponent(matches[1]) : undefined;
+            }
+
+            var data = new FormData();
+            data.append('file_name', file_name);
+            data.append('_csrf', getCookie('_csrf'));
+
+            var url = this.shop_url + '?plugin=sitestories&module=marketing&action=DelImage'
+
+            axios({
+                method: 'post',
+                url: url,
+                data: data,
+                responseType: 'json',
+                responseEncoding: 'utf8',
+                withCredentials: true,
+            })
+                .then(function (response) {
+                    console.log('sitestories del file: ', response);
+                    Vue.set(obj, key, '')
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+
+    },
+    created: function () {
+
+    },
+    beforeCreate: function () {
+        if (rule_params) {
+            function isObject(obj) {
+                if (obj.constructor.name === 'Object' && obj !== null && obj !== 'function') {
+                    return true
+                }
+            }
+
+            function findKey(object, target_key, func) {
+                const reg = new RegExp('^' + target_key)
+
+                for (const key in object) {
+                    if (Object.hasOwnProperty.call(object, key)) {
+                        if (reg.test(key)) {
+                            return func(object, key)
+                        } else {
+                            if (isObject(object[key])) {
+                                rule_params.stories = findKey(object[key], target_key, func)
+                            }
+                        }
+                    }
+                }
+
+                return object
+            }
+
+            rule_params.stories = findKey(rule_params.stories, 'group_count', function (object, key) {
+                object[key] = JSON.parse(object[key])
+                return object
+            })
+
+            rule_params.stories = findKey(rule_params.stories, 'story_count', function (object, key) {
+                object[key] = JSON.parse(object[key])
+                return object
+            })
+
+            rule_params.stories = findKey(rule_params.stories, 'group_content_active', function (object, key) {
+                object[key] = JSON.parse(object[key])
+                return object
+            })
+
+            rule_params.stories = findKey(rule_params.stories, 'story_content_active', function (object, key) {
+                object[key] = JSON.parse(object[key])
+                return object
+            })
+        }
+    },
 })
