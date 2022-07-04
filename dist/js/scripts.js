@@ -3713,7 +3713,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
   this.arrowLeft = '';
   this.timer = props.timer;
   this.previewsWidth = 0;
-  this.timerSpeed = Number(props.timerSpeed + '0');
+  this.timerSpeed = Number(props.timerSpeed + 0);
   this.indexStory = 0;
   this.indexGroup = 0;
   this.storyWidth = 0;
@@ -3747,6 +3747,8 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
   this.listenerSwipeFunc = new Set();
   this.listenerSwitchClick = new Set();
   this.listenerButtons = new WeakSet();
+  this.listenerClosingControl = new WeakSet();
+  this.isSwitchGroupEvent = false;
   this.view = {
     addElemSlider: function addElemSlider(slider, elem) {
       slider.appendChild(elem);
@@ -3756,6 +3758,8 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       var _this = this;
 
       if (this.previewsMoveEvent) return;
+      this.model.closingControl(storiesGroup);
+      this.isSwitchGroupEvent = false;
       this.body.style.overflow = 'hidden';
       this.storiesGroups.classList.add('active');
       this.storiesGroups.children[indexGroup].classList.add('active');
@@ -3801,7 +3805,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
 
       if (this.isMobile) {
         this.storiesListWrap.style.width = window.innerWidth + 'px';
-        this.storiesListWrap.style.height = window.innerHeight + 'px';
+        this.storiesListWrap.style.height = window.innerHeight * 0.9 + 'px';
       } else {
         this.storiesListWrap.style.width = Math.ceil(window.innerHeight * 0.7 / 1.8) + 'px';
         this.storiesListWrap.style.height = window.innerHeight * 0.7 + 'px';
@@ -3812,7 +3816,8 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       this.storyPositionX = this.storyWidth * this.indexStory;
       this.storyPositionY = this.storyHeight * this.indexStory;
       this.buttonsLine.forEach(function (btn) {
-        btn.style.width = '0';
+        //btn.style.width = '0'
+        btn.style.transform = 'translate(-100%)';
       });
 
       if (!this.listenerCloseStoriesGroup.has(this.indexGroup)) {
@@ -3836,7 +3841,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       window.addEventListener('resize', function () {
         if (_this.isMobile) {
           _this.storiesListWrap.style.width = window.innerWidth + 'px';
-          _this.storiesListWrap.style.height = window.innerHeight + 'px';
+          _this.storiesListWrap.style.height = window.innerHeight * 0.9 + 'px';
         } else {
           _this.storiesListWrap.style.width = Math.ceil(window.innerHeight * 0.7 / 1.8) + 'px';
           _this.storiesListWrap.style.height = window.innerHeight * 0.7 + 'px';
@@ -3866,22 +3871,89 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
         _this.model.buttonsSwitch(storiesGroup);
       });
     },
+    closingControl: function closingControl(storiesGroup) {
+      var _this2 = this;
+
+      storiesGroup.addEventListener('click', function (e) {
+        e.preventDefault();
+      });
+      var touchStartY;
+      var touchEndY;
+      var differenceTouchY;
+
+      if (this.isMobile && this.swicthHistoryType === 'horizontally' && !this.listenerClosingControl.has(storiesGroup)) {
+        storiesGroup.addEventListener('touchstart', function (e) {
+          touchStartY = e.touches[0].clientY;
+        }, {
+          passive: true
+        });
+        storiesGroup.addEventListener('touchmove', function (e) {
+          touchEndY = e.touches[0].clientY;
+        }, {
+          passive: true
+        });
+        storiesGroup.addEventListener('touchend', function (e) {
+          if (!touchEndY) return;
+          differenceTouchY = touchEndY - touchStartY;
+
+          if (differenceTouchY > 150) {
+            _this2.model.closeStoriesGroup();
+          }
+
+          touchStartY = 0;
+          touchEndY = 0;
+          differenceTouchY = 0;
+        }, {
+          passive: true
+        });
+        this.listenerClosingControl.add(storiesGroup);
+      }
+    },
     closeStoriesGroup: function closeStoriesGroup() {
-      clearInterval(this.timerIndicator);
-      this.body.style.overflow = '';
-      this.storiesList.style.transform = '';
-      this.arrowRight.style.opacity = '';
-      this.storiesGroups.classList.remove('active');
+      var _this3 = this;
 
-      this.model._removeClasses(this.storiesGroups.children, 'active');
+      if (this.isSwitchGroupEvent) {
+        clearInterval(this.timerIndicator);
+        this.body.style.overflow = '';
+        this.storiesList.style.transform = '';
+        this.arrowRight.style.opacity = '';
+        this.storiesGroups.classList.remove('active');
 
-      this.model._removeClasses(this.storiesList.children, 'active');
+        this.model._removeClasses(this.storiesGroups.children, 'active');
 
-      this.model._removeClasses(this.storiesList.children, 'switch-left');
+        this.model._removeClasses(this.storiesList.children, 'active');
 
-      this.model._removeClasses(this.storiesList.children, 'switch-right');
+        this.model._removeClasses(this.storiesList.children, 'switch-left');
 
-      this.model._removeClasses(this.buttons.children, 'active');
+        this.model._removeClasses(this.storiesList.children, 'switch-right');
+      } else {
+        this.storiesGroups.classList.add('disable');
+
+        var removeClassesActive = function removeClassesActive() {
+          clearInterval(_this3.timerIndicator);
+          _this3.body.style.overflow = '';
+          _this3.storiesList.style.transform = '';
+          _this3.arrowRight.style.opacity = '';
+
+          _this3.storiesGroups.classList.remove('disable');
+
+          _this3.storiesGroups.classList.remove('active');
+
+          _this3.model._removeClasses(_this3.storiesGroups.children, 'active');
+
+          _this3.model._removeClasses(_this3.storiesList.children, 'active');
+
+          _this3.model._removeClasses(_this3.storiesList.children, 'switch-left');
+
+          _this3.model._removeClasses(_this3.storiesList.children, 'switch-right');
+
+          _this3.model._removeClasses(_this3.buttons.children, 'active');
+
+          _this3.storiesGroups.removeEventListener('animationend', removeClassesActive);
+        };
+
+        this.storiesGroups.addEventListener('animationend', removeClassesActive);
+      }
 
       if (this.currentVideo) {
         this.model._videoStop(this.storiesGroupBGVideo, this.currentVideo);
@@ -3899,48 +3971,50 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       storiesGroup.addEventListener('click', action);
     },
     addClickPreview: function addClickPreview(preview, storiesGroup, indexGroup) {
-      var _this2 = this;
+      var _this4 = this;
 
       preview.addEventListener('click', function (e) {
-        _this2.model.openStoriesGroup(storiesGroup, indexGroup);
+        _this4.model.openStoriesGroup(storiesGroup, indexGroup);
       });
     },
     buttonsSwitch: function buttonsSwitch(storiesGroup) {
-      var _this3 = this;
+      var _this5 = this;
 
       var storiesLength = this.storiesList.children.length;
       var buttonWidth = this.storyWidth / storiesLength - 15;
       this.buttons.style.width = this.storyWidth + 'px';
 
       var _loop = function _loop(btnInx) {
-        var button = _this3.buttons.children[btnInx];
+        var button = _this5.buttons.children[btnInx];
         button.style.width = buttonWidth + 'px';
 
-        if (!_this3.listenerButtons.has(button)) {
+        if (!_this5.listenerButtons.has(button)) {
           button.addEventListener('click', function () {
-            _this3.indexStory = btnInx;
-            _this3.storyPositionX = _this3.storyWidth * _this3.indexStory;
-            _this3.storyPositionY = _this3.storyHeight * _this3.indexStory;
+            _this5.indexStory = btnInx;
+            _this5.storyPositionX = _this5.storyWidth * _this5.indexStory;
+            _this5.storyPositionY = _this5.storyHeight * _this5.indexStory;
 
-            _this3.model._switchHistory(_this3.storyPositionY, _this3.storyPositionX, storiesGroup);
+            _this5.model._switchHistory(_this5.storyPositionY, _this5.storyPositionX, storiesGroup);
 
-            _this3.storiesList.children[btnInx].classList.add('active');
+            _this5.storiesList.children[btnInx].classList.add('active');
 
             button.classList.add('active');
-            clearInterval(_this3.timerIndicator);
+            clearInterval(_this5.timerIndicator);
 
-            _this3.model.timerSwitch(storiesGroup, _this3.indexGroup);
+            _this5.model.timerSwitch(storiesGroup, _this5.indexGroup);
 
-            _this3.buttonsLine.forEach(function (btn, btnInx) {
-              if (btnInx < _this3.indexStory) {
-                btn.style.width = '100%';
+            _this5.buttonsLine.forEach(function (btn, btnInx) {
+              if (btnInx < _this5.indexStory) {
+                //btn.style.width = '100%'
+                btn.style.transform = 'translate(-0%)';
               } else {
-                btn.style.width = '0';
+                //btn.style.width = '0'
+                btn.style.transform = 'translate(-100%)';
               }
             });
           });
 
-          _this3.listenerButtons.add(button);
+          _this5.listenerButtons.add(button);
         }
       };
 
@@ -3980,47 +4054,47 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       if (!this.timer) return;
       var storiesGroupsLength = this.storiesGroups.children.length;
       var storiesLength = this.storiesList.children.length;
-      var lineWidth = 0;
+      var lineWidth = -100;
       var self = this;
       this.timerIndicator = setInterval(function () {
         var storiesListEnd = self.indexStory == storiesLength - 1;
         var storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1;
-        if (lineWidth >= 100) clearInterval(self.timerIndicator);
+        if (lineWidth >= 0) clearInterval(self.timerIndicator);
 
-        if (lineWidth < 100) {
+        if (lineWidth < 0) {
           lineWidth += 1;
-          self.buttonsLine[self.indexStory].style.width = lineWidth + '%';
+          self.buttonsLine[self.indexStory].style.transform = "translateX(".concat(lineWidth, "%)");
         } // Переключение истории
 
 
-        if (lineWidth == 100 && !storiesListEnd) {
+        if (lineWidth == 0 && !storiesListEnd) {
           self.model._switchRight(storiesGroup);
         } // Переключение группы
 
 
-        if (lineWidth == 100 && storiesListEnd && !storiesGroupEnd) {
+        if (lineWidth == 0 && storiesListEnd && !storiesGroupEnd) {
           self.model._switchGroupRight();
         }
       }, self.timerSpeed);
     },
     switchDrag: function switchDrag(storiesGroup) {
-      var _this4 = this;
+      var _this6 = this;
 
       var startX;
       var differenceX;
       var positionMoveX;
 
       var _loop2 = function _loop2(i) {
-        var story = _this4.storiesList.children[i];
+        var story = _this6.storiesList.children[i];
 
         var move = function move(e) {
           story.style.cursor = 'grabbing';
           differenceX = e.clientX - startX;
-          positionMoveX = _this4.storyPositionX - differenceX;
-          _this4.storiesList.style.transform = "translateX(-".concat(positionMoveX, "px)");
+          positionMoveX = _this6.storyPositionX - differenceX;
+          _this6.storiesList.style.transform = "translateX(-".concat(positionMoveX, "px)");
         };
 
-        if (!_this4.listenerDragsFunc.has(story)) {
+        if (!_this6.listenerDragsFunc.has(story)) {
           // Нажатие кнопки мыши на историю
           story.addEventListener('mousedown', function (e) {
             e.preventDefault();
@@ -4030,22 +4104,22 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
 
           story.addEventListener('mouseup', function () {
             story.style.cursor = 'grab';
-            _this4.storiesList.style.transform = "translateX(-".concat(_this4.storyPositionX, "px)");
-            _this4.switchStoryEvent = false; // Движение вправо
+            _this6.storiesList.style.transform = "translateX(-".concat(_this6.storyPositionX, "px)");
+            _this6.switchStoryEvent = false; // Движение вправо
 
             if (differenceX < -50) {
-              _this4.model._switchRight(storiesGroup);
+              _this6.model._switchRight(storiesGroup);
 
-              _this4.switchStoryEvent = true;
-              _this4.dragSwipeActive = true;
+              _this6.switchStoryEvent = true;
+              _this6.dragSwipeActive = true;
             } // Движение влево
 
 
             if (differenceX > 50) {
-              _this4.model._switchLeft(storiesGroup);
+              _this6.model._switchLeft(storiesGroup);
 
-              _this4.switchStoryEvent = true;
-              _this4.dragSwipeActive = true;
+              _this6.switchStoryEvent = true;
+              _this6.dragSwipeActive = true;
             }
 
             differenceX = 0;
@@ -4057,12 +4131,12 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
           }); // Покидание мыши с истории
 
           story.addEventListener('mouseleave', function () {
-            _this4.storiesList.style.transform = "translateX(-".concat(_this4.storyPositionX, "px)");
+            _this6.storiesList.style.transform = "translateX(-".concat(_this6.storyPositionX, "px)");
             story.removeEventListener('mousemove', move);
-            _this4.dragSwipeActive = false;
+            _this6.dragSwipeActive = false;
           });
 
-          _this4.listenerDragsFunc.add(story);
+          _this6.listenerDragsFunc.add(story);
         }
       };
 
@@ -4071,7 +4145,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       }
     },
     switchSwipe: function switchSwipe(storiesGroup) {
-      var _this5 = this;
+      var _this7 = this;
 
       var touchStartY;
       var touchDifferenceY;
@@ -4084,55 +4158,55 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
           touchStartX = e.touches[0].clientX;
         });
         storiesGroup.addEventListener('touchmove', function (e) {
-          if (_this5.swicthHistoryType === 'vertically') {
+          if (_this7.swicthHistoryType === 'vertically') {
             touchDifferenceY = Math.ceil(touchStartY - e.touches[0].clientY);
-            var positionMoveY = _this5.storyPositionY + touchDifferenceY;
-            _this5.storiesList.style.transform = "translateY(-".concat(positionMoveY, "px)");
+            var positionMoveY = _this7.storyPositionY + touchDifferenceY;
+            _this7.storiesList.style.transform = "translateY(-".concat(positionMoveY, "px)");
           } else {
             touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX);
-            var positionMoveX = _this5.storyPositionX + touchDifferenceX;
-            _this5.storiesList.style.transform = "translateX(-".concat(positionMoveX, "px)");
+            var positionMoveX = _this7.storyPositionX + touchDifferenceX;
+            _this7.storiesList.style.transform = "translateX(-".concat(positionMoveX, "px)");
           }
         });
         storiesGroup.addEventListener('touchend', function (e) {
-          if (_this5.swicthHistoryType === 'vertically') {
-            _this5.storiesList.style.transform = "translateY(-".concat(_this5.storyPositionY, "px)");
+          if (_this7.swicthHistoryType === 'vertically') {
+            _this7.storiesList.style.transform = "translateY(-".concat(_this7.storyPositionY, "px)");
           } else {
-            _this5.storiesList.style.transform = "translateX(-".concat(_this5.storyPositionX, "px)");
+            _this7.storiesList.style.transform = "translateX(-".concat(_this7.storyPositionX, "px)");
           }
 
-          _this5.switchStoryEvent = false;
-          _this5.dragSwipeActive = false;
+          _this7.switchStoryEvent = false;
+          _this7.dragSwipeActive = false;
 
-          if (_this5.swicthHistoryType === 'vertically') {
+          if (_this7.swicthHistoryType === 'vertically') {
             if (touchDifferenceY > 50) {
-              _this5.model._switchRight(storiesGroup);
+              _this7.model._switchRight(storiesGroup);
 
-              _this5.switchStoryEvent = true;
-              _this5.dragSwipeActive = true;
+              _this7.switchStoryEvent = true;
+              _this7.dragSwipeActive = true;
             }
 
             if (touchDifferenceY < -50) {
-              _this5.model._switchLeft(storiesGroup);
+              _this7.model._switchLeft(storiesGroup);
 
-              _this5.switchStoryEvent = true;
-              _this5.dragSwipeActive = true;
+              _this7.switchStoryEvent = true;
+              _this7.dragSwipeActive = true;
             }
           } else {
             // Движение вправо
             if (touchDifferenceX > 50) {
-              _this5.model._switchRight(storiesGroup);
+              _this7.model._switchRight(storiesGroup);
 
-              _this5.switchStoryEvent = true;
-              _this5.dragSwipeActive = true;
+              _this7.switchStoryEvent = true;
+              _this7.dragSwipeActive = true;
             } // Движение влево
 
 
             if (touchDifferenceX < -50) {
-              _this5.model._switchLeft(storiesGroup);
+              _this7.model._switchLeft(storiesGroup);
 
-              _this5.switchStoryEvent = true;
-              _this5.dragSwipeActive = true;
+              _this7.switchStoryEvent = true;
+              _this7.dragSwipeActive = true;
             }
           }
 
@@ -4143,29 +4217,29 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       }
     },
     switchClick: function switchClick(storiesListWrap, storiesGroup) {
-      var _this6 = this;
+      var _this8 = this;
 
       if (!this.listenerSwitchClick.has(storiesListWrap)) {
         var halfWidth = window.innerWidth / 2;
         var halfheight = window.innerHeight / 2;
         storiesListWrap.addEventListener('click', function (e) {
-          if (_this6.dragSwipeActive) return;
+          if (_this8.dragSwipeActive) return;
 
-          if (_this6.isMobile && _this6.swicthHistoryType === 'vertically') {
+          if (_this8.isMobile && _this8.swicthHistoryType === 'vertically') {
             if (e.clientY - 30 > halfheight) {
-              _this6.model._switchRight(storiesGroup);
+              _this8.model._switchRight(storiesGroup);
             }
 
             if (e.clientY + 30 < halfheight) {
-              _this6.model._switchLeft(storiesGroup);
+              _this8.model._switchLeft(storiesGroup);
             }
           } else {
             if (e.clientX - 30 > halfWidth) {
-              _this6.model._switchRight(storiesGroup);
+              _this8.model._switchRight(storiesGroup);
             }
 
             if (e.clientX + 30 < halfWidth) {
-              _this6.model._switchLeft(storiesGroup);
+              _this8.model._switchLeft(storiesGroup);
             }
           }
         });
@@ -4223,8 +4297,9 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       this.model._checkSlideEnd();
     },
     _switchGroupRight: function _switchGroupRight() {
-      var _this7 = this;
+      var _this9 = this;
 
+      this.isSwitchGroupEvent = true;
       this.indexGroup++;
       this.indexStory = 0;
       this.model.closeStoriesGroup();
@@ -4233,38 +4308,41 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       if (!this.isMobile) {
         this.storiesList.children[this.indexStory].classList.add('switch-right');
         setTimeout(function () {
-          _this7.storiesList.children[_this7.indexStory].classList.remove('switch-right');
+          _this9.storiesList.children[_this9.indexStory].classList.remove('switch-right');
         }, 200);
       }
     },
     _switchGroupLeft: function _switchGroupLeft() {
-      var _this8 = this;
+      var _this10 = this;
 
+      this.isSwitchGroupEvent = true;
       this.indexGroup--;
       this.model.closeStoriesGroup();
       this.model.openStoriesGroup(this.storiesGroups.children[this.indexGroup], this.indexGroup);
       this.indexStory = this.storiesList.children.length - 1;
       this.buttonsLine.forEach(function (btn, btnInx) {
-        if (btnInx < _this8.indexStory) {
-          btn.style.width = '100%';
+        if (btnInx < _this10.indexStory) {
+          //btn.style.width = '100%'
+          btn.style.transform = 'translate(-0%)';
         }
       });
 
       if (!this.isMobile) {
         this.storiesList.children[this.indexStory].classList.add('switch-left');
         setTimeout(function () {
-          _this8.storiesList.children[_this8.indexStory].classList.remove('switch-left');
+          _this10.storiesList.children[_this10.indexStory].classList.remove('switch-left');
         }, 200);
       }
     },
     _switchRight: function _switchRight(storiesGroup) {
-      var _this9 = this;
+      var _this11 = this;
 
       clearInterval(this.timerIndicator);
       this.indexStory++;
       this.buttonsLine.forEach(function (btn, btnInx) {
-        if (btnInx < _this9.indexStory) {
-          btn.style.width = '100%';
+        if (btnInx < _this11.indexStory) {
+          //btn.style.width = '100%'
+          btn.style.transform = 'translate(-0%)';
         }
       });
       var storiesGroupsLength = this.storiesGroups.children.length;
@@ -4292,13 +4370,14 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       }
     },
     _switchLeft: function _switchLeft(storiesGroup) {
-      var _this10 = this;
+      var _this12 = this;
 
       clearInterval(this.timerIndicator);
       this.indexStory--;
       this.buttonsLine.forEach(function (btn, btnInx) {
-        if (btnInx > _this10.indexStory) {
-          btn.style.width = '0';
+        if (btnInx > _this12.indexStory) {
+          //btn.style.width = '0'
+          btn.style.transform = 'translate(-100%)';
         }
       }); // Переключение группы в лево
 
@@ -4469,30 +4548,30 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
       }
     },
     _controlVideo: function _controlVideo(video, videoBG, soundIcon, playIcon) {
-      var _this11 = this;
+      var _this13 = this;
 
       video.load();
 
       var videoPlay = function videoPlay(video) {
-        if (_this11.switchStoryEvent) return;
+        if (_this13.switchStoryEvent) return;
 
         if (video.paused) {
           video.play();
           playIcon.style.display = 'none';
           video.style.opacity = '';
-          clearInterval(_this11.timerIndicator);
+          clearInterval(_this13.timerIndicator);
 
-          _this11.model.timerSwitch(_this11.storiesGroup);
+          _this13.model.timerSwitch(_this13.storiesGroup);
         } else {
           video.pause();
           playIcon.style.display = '';
           video.style.opacity = '0.5';
-          clearInterval(_this11.timerIndicator);
+          clearInterval(_this13.timerIndicator);
         }
       };
 
       var videoBGPlay = function videoBGPlay(video) {
-        if (_this11.switchStoryEvent) return;
+        if (_this13.switchStoryEvent) return;
 
         if (video.paused) {
           video.play();
@@ -4522,11 +4601,11 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
         videoPlayPromise.then(function (_) {
           // Automatic playback started!
           // Show playing UI.
-          if (!_this11.listenerVideoPlay.has(video)) {
-            video.addEventListener('click', videoPlay.bind(_this11, video));
-            playIcon.addEventListener('click', videoPlay.bind(_this11, video));
+          if (!_this13.listenerVideoPlay.has(video)) {
+            video.addEventListener('click', videoPlay.bind(_this13, video));
+            playIcon.addEventListener('click', videoPlay.bind(_this13, video));
 
-            _this11.listenerVideoPlay.add(video);
+            _this13.listenerVideoPlay.add(video);
           }
         })["catch"](function (error) {
           // Auto-play was prevented
@@ -4543,11 +4622,11 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
         videoBGplayPromise.then(function (_) {
           // Automatic playback started!
           // Show playing UI.
-          if (!_this11.listenerVideoBGPlay.has(video)) {
-            video.addEventListener('click', videoBGPlay.bind(_this11, videoBG));
-            playIcon.addEventListener('click', videoBGPlay.bind(_this11, videoBG));
+          if (!_this13.listenerVideoBGPlay.has(video)) {
+            video.addEventListener('click', videoBGPlay.bind(_this13, videoBG));
+            playIcon.addEventListener('click', videoBGPlay.bind(_this13, videoBG));
 
-            _this11.listenerVideoBGPlay.add(video);
+            _this13.listenerVideoBGPlay.add(video);
           }
         })["catch"](function (error) {// Auto-play was prevented
           // Show paused UI.
@@ -4597,25 +4676,25 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
     }
   }, this.controller = {
     storiesControl: function storiesControl() {
-      var _this12 = this;
+      var _this14 = this;
 
       var switchDrag = function switchDrag(previews) {
         var startX = 0;
         var differenceX = 0;
         var positionMoveX = 0;
         var currentPositionX = 0;
-        var previewsWidthViewPortOut = _this12.storiesSection.offsetWidth - _this12.previewsWidth;
+        var previewsWidthViewPortOut = _this14.storiesSection.offsetWidth - _this14.previewsWidth;
 
         var move = function move(e) {
           previews.style.cursor = 'grabbing';
           differenceX = e.clientX - startX;
           positionMoveX = currentPositionX + differenceX;
-          _this12.previews.style.transform = "translateX(".concat(positionMoveX, "px)");
+          _this14.previews.style.transform = "translateX(".concat(positionMoveX, "px)");
         };
 
         previews.addEventListener('mousedown', function (e) {
           e.preventDefault();
-          _this12.previewsMoveEvent = false;
+          _this14.previewsMoveEvent = false;
           startX = e.clientX;
           previews.addEventListener('mousemove', move);
         }); // Поднятие кнопки мыши на истории
@@ -4625,20 +4704,20 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
           currentPositionX = positionMoveX;
 
           if (differenceX < -10) {
-            _this12.previewsMoveEvent = true;
+            _this14.previewsMoveEvent = true;
           }
 
           if (differenceX > 10) {
-            _this12.previewsMoveEvent = true;
+            _this14.previewsMoveEvent = true;
           }
 
           if (currentPositionX > 0) {
-            _this12.previews.style.transform = "translateX(0px)";
+            _this14.previews.style.transform = "translateX(0px)";
             currentPositionX = 0;
           }
 
           if (currentPositionX < previewsWidthViewPortOut) {
-            _this12.previews.style.transform = "translateX(".concat(previewsWidthViewPortOut, "px)");
+            _this14.previews.style.transform = "translateX(".concat(previewsWidthViewPortOut, "px)");
             currentPositionX = previewsWidthViewPortOut;
           }
 
@@ -4664,7 +4743,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
         var touchDifferenceX = 0;
         var currentPositionX = 0;
         var positionMoveX = 0;
-        var previewsWidthViewPortOut = _this12.storiesSection.offsetWidth - _this12.previewsWidth;
+        var previewsWidthViewPortOut = _this14.storiesSection.offsetWidth - _this14.previewsWidth;
         previews.addEventListener('touchstart', function (e) {
           touchStartX = e.touches[0].clientX;
           this.previewsMoveEvent = false;
@@ -4674,7 +4753,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
         previews.addEventListener('touchmove', function (e) {
           touchDifferenceX = Math.ceil(touchStartX - e.touches[0].clientX);
           positionMoveX = currentPositionX - touchDifferenceX;
-          _this12.previews.style.transform = "translateX(".concat(positionMoveX, "px)");
+          _this14.previews.style.transform = "translateX(".concat(positionMoveX, "px)");
         }, {
           passive: true
         });
@@ -4682,20 +4761,20 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
           currentPositionX = positionMoveX;
 
           if (touchDifferenceX > 10) {
-            _this12.previewsMoveEvent = true;
+            _this14.previewsMoveEvent = true;
           }
 
           if (touchDifferenceX < -10) {
-            _this12.previewsMoveEvent = true;
+            _this14.previewsMoveEvent = true;
           }
 
           if (currentPositionX > 0) {
-            _this12.previews.style.transform = "translateX(0px)";
+            _this14.previews.style.transform = "translateX(0px)";
             currentPositionX = 0;
           }
 
           if (currentPositionX < previewsWidthViewPortOut) {
-            _this12.previews.style.transform = "translateX(".concat(previewsWidthViewPortOut, "px)");
+            _this14.previews.style.transform = "translateX(".concat(previewsWidthViewPortOut, "px)");
             currentPositionX = previewsWidthViewPortOut;
           }
 
@@ -4749,7 +4828,7 @@ window.addEventListener('load', function () {
     storiesSelector: '[data-stories-section="1"]',
     previewsSelector: '[data-stories-previews="1"]',
     storySelector: '[data-stories-groups="1"]',
-    timer: 0,
+    timer: 1,
     timerSpeed: '10',
     isMobile: 0,
     swicthHistoryType: 'horizontally' // horizontally, vertically
