@@ -57,6 +57,7 @@ class WebasystStories {
                     if (this.previewsMoveEvent) return
 
                     this.model.closingControl(storiesGroup)
+                    clearInterval(this.timerIndicator)
                     this.isSwitchGroupEvent = false
                     this.body.style.overflow = 'hidden'
                     this.storiesGroups.classList.add('active')
@@ -208,8 +209,9 @@ class WebasystStories {
                 },
 
                 closeStoriesGroup() {
+                    clearInterval(this.timerIndicator)
+
                     if (this.isSwitchGroupEvent) {
-                        clearInterval(this.timerIndicator)
                         this.body.style.overflow = ''
                         this.storiesList.style.transform = ''
                         this.arrowRight.style.opacity = ''
@@ -220,9 +222,13 @@ class WebasystStories {
                         this.model._removeClasses(this.storiesList.children, 'switch-right')
                     } else {
                         this.storiesGroups.classList.add('disable')
+
+                        if (!this.isMobile) this.body.style.overflow = ''
+
                         const removeClassesActive = () => {
-                            clearInterval(this.timerIndicator)
-                            this.body.style.overflow = ''
+                            
+                            if (this.isMobile) this.body.style.overflow = ''
+
                             this.storiesList.style.transform = ''
                             this.arrowRight.style.opacity = ''
                             this.storiesGroups.classList.remove('disable')
@@ -345,7 +351,7 @@ class WebasystStories {
 
                         if (lineWidth < 0) {
                             lineWidth += 1
-                            self.buttonsLine[self.indexStory].style.transform = `translateX(${lineWidth}%)`
+                            if (self.buttonsLine[self.indexStory]) self.buttonsLine[self.indexStory].style.transform = `translateX(${lineWidth}%)`
                         }
 
                         // Переключение истории

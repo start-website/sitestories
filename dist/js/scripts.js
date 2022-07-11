@@ -3759,6 +3759,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
 
       if (this.previewsMoveEvent) return;
       this.model.closingControl(storiesGroup);
+      clearInterval(this.timerIndicator);
       this.isSwitchGroupEvent = false;
       this.body.style.overflow = 'hidden';
       this.storiesGroups.classList.add('active');
@@ -3912,8 +3913,9 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
     closeStoriesGroup: function closeStoriesGroup() {
       var _this3 = this;
 
+      clearInterval(this.timerIndicator);
+
       if (this.isSwitchGroupEvent) {
-        clearInterval(this.timerIndicator);
         this.body.style.overflow = '';
         this.storiesList.style.transform = '';
         this.arrowRight.style.opacity = '';
@@ -3928,10 +3930,10 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
         this.model._removeClasses(this.storiesList.children, 'switch-right');
       } else {
         this.storiesGroups.classList.add('disable');
+        if (!this.isMobile) this.body.style.overflow = '';
 
         var removeClassesActive = function removeClassesActive() {
-          clearInterval(_this3.timerIndicator);
-          _this3.body.style.overflow = '';
+          if (_this3.isMobile) _this3.body.style.overflow = '';
           _this3.storiesList.style.transform = '';
           _this3.arrowRight.style.opacity = '';
 
@@ -4063,7 +4065,7 @@ var WebasystStories = /*#__PURE__*/_createClass(function WebasystStories(props) 
 
         if (lineWidth < 0) {
           lineWidth += 1;
-          self.buttonsLine[self.indexStory].style.transform = "translateX(".concat(lineWidth, "%)");
+          if (self.buttonsLine[self.indexStory]) self.buttonsLine[self.indexStory].style.transform = "translateX(".concat(lineWidth, "%)");
         } // Переключение истории
 
 
