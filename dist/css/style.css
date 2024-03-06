@@ -184,9 +184,9 @@
 .webasyst-stories__list-wrap {
   overflow: hidden;
   position: relative;
-  -webkit-border-radius: 7px;
-  -moz-border-radius: 7px;
-  border-radius: 7px;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  border-radius: 25px;
   z-index: 10;
   max-width: 1080px;
   max-height: 1920px;
@@ -229,6 +229,10 @@
   transition-property: all;
   width: 100%;
   height: 100%;
+  -webkit-transition-duration: 300ms;
+  -moz-transition-duration: 300ms;
+  -o-transition-duration: 300ms;
+  transition-duration: 300ms;
 }
 
 .webasyst-stories__bg_video {
@@ -255,7 +259,7 @@
 .webasyst-stories__story {
   position: relative;
   height: inherit;
-  background-color: #000;
+  background-color: transparent;
 }
 
 .webasyst-stories__story_dark {
@@ -296,6 +300,7 @@
   bottom: 0;
   padding: 20px;
   color: #fff;
+  width: 100%;
 }
 
 .webasyst-stories__title {
@@ -304,6 +309,7 @@
   color: inherit;
   font-family: inherit;
   margin-bottom: 5px;
+  text-align: center;
 }
 
 .webasyst-stories__desc {
@@ -312,6 +318,7 @@
   color: inherit;
   font-family: inherit;
   margin-bottom: 15px;
+  text-align: center;
 }
 
 .webasyst-stories__button-info {
@@ -379,6 +386,74 @@
   -ms-flex-pack: center;
   justify-content: center;
   z-index: 30;
+}
+
+.webasyst-stories__controls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+  margin: auto;
+  opacity: 0;
+  z-index: 99999;
+  height: 25%;
+}
+
+.webasyst-stories__controls-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -moz-box-orient: horizontal;
+  -moz-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+}
+
+.webasyst-stories__area-switch-right {
+  background-color: transparent;
+  cursor: pointer;
+  background-color: rebeccapurple;
+  width: 100%;
+}
+
+.webasyst-stories__area-play {
+  background-color: transparent;
+  cursor: pointer;
+  background-color: red;
+  width: 100%;
+}
+
+.webasyst-stories__area-switch-left {
+  background-color: transparent;
+  width: 100%;
+  cursor: pointer;
+  background-color: aquamarine;
+}
+
+.webasyst-stories__link-for-video {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 }
 
 .webasyst-stories__button-wrap {

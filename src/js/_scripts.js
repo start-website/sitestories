@@ -1,3 +1,45 @@
+class Sitestories {
+    constructor(props) {
+        this.storiesSectionSelector = props.storiesSectionSelector
+        this.isMobile = props.isMobile
+        this.timer = props.timer
+        this.swicthHistoryType = props.swicthHistoryType
+
+        this.init()
+    }
+
+    init() {
+        this.storiesSection = $('.sitestories' + this.storiesSectionSelector)
+        this.previews = this.storiesSection.find('.sitestories__preview')
+        this.groupsStories = this.storiesSection.find('.sitestories__groups')
+        this.groupStories = this.storiesSection.find('.sitestories__group')
+        
+        this.previews.each((index_preview, preview) => {
+            this.previewHandler(preview, index_preview)   
+        })
+
+    }
+
+    previewHandler(preview, index_preview) {
+        $(preview).on('click', () => {
+            this.openGroupStories(index_preview)
+        })
+    }
+
+    openGroupStories(index) {
+        const groupStories = this.groupStories[index]
+        this.groupsStories.addClass('active')
+        $(groupStories).addClass('active')
+    }
+}
+
+new Sitestories({
+    storiesSectionSelector: '[data-stories-section="1"]',
+    isMobile: false,
+    timer: false,
+    swicthHistoryType: 'horizontally'
+})
+
 class WebasystStories {
     constructor(props) {
         this.storiesSection = document.querySelector(props.storiesSelector)
@@ -9,7 +51,7 @@ class WebasystStories {
         this.arrowLeft = ''
         this.timer = props.timer
         this.previewsWidth = 0
-        this.timerSpeed = Number(props.timerSpeed + 0)
+        this.currentStory = ''
         this.indexStory = 0
         this.indexGroup = 0
         this.storyWidth = 0
@@ -17,6 +59,7 @@ class WebasystStories {
         this.storyPositionX = 0
         this.storyPositionY = 0
         this.media = ''
+        this.image = ''
         this.allVideo = ''
         this.soundIcon = ''
         this.playIcon = ''
@@ -45,6 +88,7 @@ class WebasystStories {
         this.listenerButtons = new WeakSet()
         this.listenerClosingControl = new WeakSet();
         this.isSwitchGroupEvent = false
+        this.linkAble = true
 
         this.view = {
             addElemSlider: function (slider, elem) {
@@ -62,19 +106,21 @@ class WebasystStories {
                     this.body.style.overflow = 'hidden'
                     this.storiesGroups.classList.add('active')
                     this.storiesGroups.children[indexGroup].classList.add('active')
-                    this.storiesListWrap = this.model._getElem(storiesGroup, 'webasyst-stories__list-wrap')
-                    this.storiesList = this.model._getElem(storiesGroup, 'webasyst-stories__list')
+                    this.storiesListWrap = this.model._getElem(storiesGroup, 'sitestories__list-wrap')
+                    this.storiesList = this.model._getElem(storiesGroup, 'sitestories__list')
+                    this.currentStory = this.storiesList.children[0]
+                    this.image = this.model._getElem(storiesGroup, 'sitestories__img')
                     this.media = this.model._getMedia(this.storiesList, ['img', 'source'])
-                    this.storiesGroupBG = this.model._getElem(storiesGroup, 'webasyst-stories__bg')
-                    this.storiesGroupBGVideo = this.model._getElem(storiesGroup, 'webasyst-stories__bg_video')
-                    this.buttons = this.model._getElem(storiesGroup, 'webasyst-stories__buttons')
+                    this.storiesGroupBG = this.model._getElem(storiesGroup, 'sitestories__bg')
+                    this.storiesGroupBGVideo = this.model._getElem(storiesGroup, 'sitestories__bg_video')
+                    this.buttons = this.model._getElem(storiesGroup, 'sitestories__buttons')
                     this.allVideo = this.model._getElems(storiesGroup, 'VIDEO', 'tag')
-                    this.buttonsLine = this.model._getElems(this.buttons, 'webasyst-stories__button-line', 'class')
-                    this.soundIcon = this.model._getElem(storiesGroup, 'webasyst-stories__sound')
-                    this.arrowRight = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-right')
-                    this.arrowLeft = this.model._getElem(storiesGroup, 'webasyst-stories__arrow-left')
-                    this.storiesList.children[0].classList.add('active')
-                    this.model._addElemSrc(this.storiesList.children[0])
+                    this.buttonsLine = this.model._getElems(this.buttons, 'sitestories__button-line', 'class')
+                    this.soundIcon = this.model._getElem(storiesGroup, 'sitestories__sound')
+                    this.arrowRight = this.model._getElem(storiesGroup, 'sitestories__arrow-right')
+                    this.arrowLeft = this.model._getElem(storiesGroup, 'sitestories__arrow-left')
+                    this.currentStory.classList.add('active')
+                    this.model._addElemSrc(this.currentStory)
 
                     if (this.storiesList.children[1]) {
                         this.model._addElemSrc(this.storiesList.children[1])
@@ -93,16 +139,16 @@ class WebasystStories {
 
                     this.model._setBackground(this.storiesGroupBG, this.storiesGroupBGVideo, this.slideType)
 
-                    this.currentVideo = this.model._getTag(this.storiesList.children[0].children[0], 'VIDEO')
+                    this.currentVideo = this.model._getTag(this.currentStory.children[0], 'VIDEO')
 
                     if (this.currentVideo) {
-                        this.playIcon = this.model._getElem(this.storiesList.children[0], 'webasyst-stories__play-icon')
+                        this.playIcon = this.model._getElem(this.currentStory, 'sitestories__play-icon')
                         this.soundIcon.style.display = ''
-                        this.model._controlVideo(this.currentVideo, this.storiesGroupBGVideo, this.soundIcon, this.playIcon)
+                        this.model._controlVideo(this.currentVideo, this.storiesGroupBGVideo, this.soundIcon, this.playIcon, storiesGroup)
                     }
 
-                    if (this.isMobile) {
-                        this.storiesListWrap.style.width = window.innerWidth + 'px'
+                    if (this.isMobile) { 
+                        this.storiesListWrap.style.width = (window.innerWidth - 5) + 'px'
                         this.storiesListWrap.style.height = (window.innerHeight * 0.9) + 'px'
                     } else {
                         this.storiesListWrap.style.width = Math.ceil((window.innerHeight * 0.7) / 1.8) + 'px'
@@ -136,7 +182,7 @@ class WebasystStories {
                         this.model.switchDrag(storiesGroup)
                     }
 
-                    this.model.switchClick(this.storiesListWrap, storiesGroup)
+                    this.model.switchClick(storiesGroup)
 
                     window.addEventListener('resize', () => {
                         if (this.isMobile) {
@@ -173,7 +219,9 @@ class WebasystStories {
 
                 closingControl(storiesGroup) {
                     storiesGroup.addEventListener('click', (e) => {
-                        e.preventDefault()
+                        if (!this.linkAble) {
+                            e.preventDefault()
+                        }
                     })
 
                     let touchStartY
@@ -210,7 +258,6 @@ class WebasystStories {
 
                 closeStoriesGroup() {
                     clearInterval(this.timerIndicator)
-
                     if (this.isSwitchGroupEvent) {
                         this.body.style.overflow = ''
                         this.storiesList.style.transform = ''
@@ -250,7 +297,7 @@ class WebasystStories {
 
                 addClickStoriesGroup(storiesGroup, fn, removeEvent) {
                     const action = (e) => {
-                        if (e.target.className && /(webasyst-stories__bg|webasyst-stories__close|webasyst-stories__icon-close)/gi.test(e.target.className)) {
+                        if (e.target.className && /(sitestories__bg|sitestories__close|sitestories__icon-close)/gi.test(e.target.className)) {
                             fn()
                         }
 
@@ -342,10 +389,11 @@ class WebasystStories {
                     const storiesLength = this.storiesList.children.length
                     let lineWidth = -100
                     const self = this
+                    const timerSpeed = this.currentStory.getAttribute('data-speed') ? Number(this.currentStory.getAttribute('data-speed') + '0') : 50
 
                     this.timerIndicator = setInterval(function () {
-                        const storiesListEnd = self.indexStory == storiesLength - 1
-                        const storiesGroupEnd = self.indexGroup == storiesGroupsLength - 1
+                        const isStoriesListEnd = self.indexStory == storiesLength - 1
+                        const isStoriesGroupEnd = self.indexGroup == storiesGroupsLength - 1
 
                         if (lineWidth >= 0) clearInterval(self.timerIndicator)
 
@@ -354,17 +402,22 @@ class WebasystStories {
                             if (self.buttonsLine[self.indexStory]) self.buttonsLine[self.indexStory].style.transform = `translateX(${lineWidth}%)`
                         }
 
+                        if (lineWidth == 0 && isStoriesListEnd && self.currentVideo) {
+                            self.storiesGroupBGVideo.pause()
+                            self.currentVideo.pause()
+                        }
+
                         // Переключение истории
-                        if (lineWidth == 0 && !storiesListEnd) {
+                        if (lineWidth == 0 && !isStoriesListEnd) {
                             self.model._switchRight(storiesGroup)
                         }
                         
                         // Переключение группы
-                        if (lineWidth == 0 && storiesListEnd && !storiesGroupEnd) {
+                        if (lineWidth == 0 && isStoriesListEnd && !isStoriesGroupEnd) {
                             self.model._switchGroupRight()
                         }
 
-                    }, self.timerSpeed)
+                    }, timerSpeed)
                 },
 
                 switchDrag(storiesGroup) {
@@ -375,6 +428,7 @@ class WebasystStories {
                     for (let i = 0; i < this.storiesList.children.length; i++) {
                         const story = this.storiesList.children[i];
                         const move = (e) => {
+                            this.linkAble = false
                             story.style.cursor = 'grabbing'
                             differenceX = e.clientX - startX
                             positionMoveX = this.storyPositionX - differenceX
@@ -425,6 +479,7 @@ class WebasystStories {
                                 this.storiesList.style.transform = `translateX(-${this.storyPositionX}px)`
                                 story.removeEventListener('mousemove', move);
                                 this.dragSwipeActive = false
+                                this.linkAble = true
                             })
 
                             this.listenerDragsFunc.add(story)
@@ -503,39 +558,55 @@ class WebasystStories {
 
                 },
 
-                switchClick(storiesListWrap, storiesGroup) {
-                    if (!this.listenerSwitchClick.has(storiesListWrap)) {
-                        const halfWidth = window.innerWidth / 2
-                        const halfheight = window.innerHeight / 2
-                        
-                        storiesListWrap.addEventListener('click', (e) => {
+                switchClick(storiesGroup) {
+                    if (!this.listenerSwitchClick.has(storiesGroup)) {
+                        const switchRightArea = this.model._getElem(storiesGroup, 'sitestories__area-switch-right')
+                        const switchLeftArea = this.model._getElem(storiesGroup, 'sitestories__area-switch-left')
+
+                        switchRightArea.addEventListener('click', (e) => {
                             if (this.dragSwipeActive) return
 
-                            if (this.isMobile && this.swicthHistoryType === 'vertically') {
-                                if ((e.clientY - 30) > halfheight) {
-                                    this.model._switchRight(storiesGroup)
-                                } 
-                                if ((e.clientY + 30) < halfheight) {
-                                    this.model._switchLeft(storiesGroup)
-                                }
-                            } else {
-                                if ((e.clientX - 30) > halfWidth) {
-                                    this.model._switchRight(storiesGroup)
-                                } 
-                                if ((e.clientX + 30) < halfWidth) {
-                                    this.model._switchLeft(storiesGroup)
-                                }
-                            }
+                            this.model._switchRight(storiesGroup)
                         })
+
+                        switchLeftArea.addEventListener('click', (e) => {
+                            if (this.dragSwipeActive) return
+
+                            this.model._switchLeft(storiesGroup)
+                        })
+
+                        // const halfWidth = window.innerWidth / 2
+                        // const halfheight = window.innerHeight / 2
+                        
+                        // storiesListWrap.addEventListener('click', (e) => {
+                        //     if (this.dragSwipeActive) return
+
+                        //     if (this.isMobile && this.swicthHistoryType === 'vertically') {
+                        //         if ((e.clientY - 30) > halfheight) {
+                        //             this.model._switchRight(storiesGroup)
+                        //         } 
+                        //         if ((e.clientY + 30) < halfheight) {
+                        //             this.model._switchLeft(storiesGroup)
+                        //         }
+                        //     } else {
+                        //         if ((e.clientX - 30) > halfWidth) {
+                        //             this.model._switchRight(storiesGroup)
+                        //         } 
+                        //         if ((e.clientX + 30) < halfWidth) {
+                        //             this.model._switchLeft(storiesGroup)
+                        //         }
+                        //     }
+                        // })
                     }
 
-                    this.listenerSwitchClick.add(storiesListWrap)
+                    this.listenerSwitchClick.add(storiesGroup)
                 },
 
                 _switchHistory(storyPositionY, storyPositionX, storiesGroup) {
+                    this.currentStory = this.storiesList.children[this.indexStory]
                     this.model._removeClasses(this.storiesList.children, 'active')
-                    this.storiesList.children[this.indexStory].classList.add('active')
-                    this.model._addElemSrc(this.storiesList.children[this.indexStory])
+                    this.currentStory.classList.add('active')
+                    this.model._addElemSrc(this.currentStory)
 
                     if (this.storiesList.children[this.indexStory +1]) {
                         this.model._addElemSrc(this.storiesList.children[this.indexStory +1])
@@ -545,17 +616,17 @@ class WebasystStories {
                         this.model._videoStop(this.storiesGroupBGVideo, this.currentVideo)
                     }
 
-                    this.currentVideo = this.model._getTag(this.storiesList.children[this.indexStory].children[0], 'VIDEO')
+                    this.currentVideo = this.model._getTag(this.currentStory.children[0], 'VIDEO')
 
                     if (this.currentVideo) {
-                        this.playIcon = this.model._getElem(this.storiesList.children[this.indexStory], 'webasyst-stories__play-icon')
+                        this.playIcon = this.model._getElem(this.currentStory, 'sitestories__play-icon')
                         this.soundIcon.style.display = ''
-                        this.model._controlVideo(this.currentVideo, this.storiesGroupBGVideo, this.soundIcon, this.playIcon)
+                        this.model._controlVideo(this.currentVideo, this.storiesGroupBGVideo, this.soundIcon, this.playIcon, storiesGroup)
                     } else {
                         this.soundIcon.style.display = 'none'
                     }
 
-                    this.slideType = this.model._checkSlideType(this.storiesList.children[this.indexStory].children[0])
+                    this.slideType = this.model._checkSlideType(this.currentStory.children[0])
                     this.model._setBackground(this.storiesGroupBG, this.storiesGroupBGVideo, this.slideType)
 
                     this.model._removeClasses(this.buttons.children, 'active')
@@ -627,8 +698,8 @@ class WebasystStories {
 
                     const storiesGroupsLength = this.storiesGroups.children.length
                     const storiesLength = this.storiesList.children.length
-                    const storiesListEnd = this.indexStory == storiesLength
-                    const storiesGroupEnd = this.indexGroup == storiesGroupsLength - 1
+                    const isStoriesListEnd = this.indexStory == storiesLength
+                    const isStoriesGroupEnd = this.indexGroup == storiesGroupsLength - 1
 
                     // Переключение истории вправо
                     if (this.indexStory < storiesLength) {
@@ -638,13 +709,13 @@ class WebasystStories {
                     }
 
                     // Переключение группы вправо
-                    if (storiesListEnd && !storiesGroupEnd) {
+                    if (isStoriesListEnd && !isStoriesGroupEnd) {
                         this.model._switchGroupRight()
                     } else {
                         this.model.timerSwitch(storiesGroup)
                     }
 
-                    if (storiesGroupEnd && storiesListEnd) {
+                    if (isStoriesGroupEnd && isStoriesListEnd) {
                         //this.indexStory = storiesLength - 1
                         this.model.closeStoriesGroup()
                     }
@@ -799,24 +870,32 @@ class WebasystStories {
                 },
 
                 _setBackground(storiesGroupBG, storiesGroupBGVideo, elem) {
-                    if (this.isMobile) return
-
                     switch (elem) {
                         case 'img':
+                            storiesGroupBG.style.opacity = 0
                             storiesGroupBG.style.backgroundImage = `url(${this.media[this.indexStory]})`
+                            setTimeout(() => {
+                                if (elem === 'img') {
+                                    storiesGroupBG.style.opacity = ''
+                                }
+                            }, 1)
                             break
                         case 'video':
+                            storiesGroupBG.style.opacity = 0
+                            storiesGroupBGVideo.opacity = 0
                             const videoSource = storiesGroupBGVideo.children[0]
                             videoSource.src = this.media[this.indexStory]
                             storiesGroupBGVideo.load()
-
                             const storiesBGvideoPromise = storiesGroupBGVideo.play()
+
                             if (storiesBGvideoPromise !== undefined) {
                                 storiesBGvideoPromise
                                     .then(_ => {
                                         // Automatic playback started!
                                         // Show playing UI.
                                         storiesGroupBGVideo.style.display = ''
+                                        storiesGroupBGVideo.style.opacity = ''
+                                        //storiesGroupBG.style.opacity = ''
                                     })
                                     .catch(error => {
                                         // Auto-play was prevented
@@ -825,10 +904,9 @@ class WebasystStories {
                             }
                             break
                     }
-
                 },
 
-                _controlVideo(video, videoBG, soundIcon, playIcon) {
+                _controlVideo(video, videoBG, soundIcon, playIcon, storiesGroup) {
                     video.load()
 
                     const videoPlay = (video) => {
@@ -861,12 +939,12 @@ class WebasystStories {
                     const videoMuted = () => {
                         if (video.muted) {
                             video.muted = false
-                            soundIcon.children[0].classList.add('webasyst-stories__icon-sound')
-                            soundIcon.children[0].classList.remove('webasyst-stories__icon-sound-none')
+                            soundIcon.children[0].classList.add('sitestories__icon-sound')
+                            soundIcon.children[0].classList.remove('sitestories__icon-sound-none')
                         } else {
                             video.muted = true
-                            soundIcon.children[0].classList.remove('webasyst-stories__icon-sound')
-                            soundIcon.children[0].classList.add('webasyst-stories__icon-sound-none')
+                            soundIcon.children[0].classList.remove('sitestories__icon-sound')
+                            soundIcon.children[0].classList.add('sitestories__icon-sound-none')
                         }
                     }
 
@@ -874,13 +952,15 @@ class WebasystStories {
                     const videoPlayPromise = video.play()
                     playIcon.style.display = 'none'
                     video.style.opacity = ''
+                    const playArea = this.model._getElem(storiesGroup, 'sitestories__area-play')
+
                     if (videoPlayPromise !== undefined) {
                         videoPlayPromise
                             .then(_ => {
                                 // Automatic playback started!
                                 // Show playing UI.
                                 if (!this.listenerVideoPlay.has(video)) {
-                                    video.addEventListener('click', videoPlay.bind(this, video))
+                                    playArea.addEventListener('click', videoPlay.bind(this, video))
                                     playIcon.addEventListener('click', videoPlay.bind(this, video))
 
                                     this.listenerVideoPlay.add(video)
@@ -902,22 +982,26 @@ class WebasystStories {
                                 // Automatic playback started!
                                 // Show playing UI.
                                 if (!this.listenerVideoBGPlay.has(video)) {
-                                    video.addEventListener('click', videoBGPlay.bind(this, videoBG))
+                                    playArea.addEventListener('click', videoBGPlay.bind(this, videoBG))
                                     playIcon.addEventListener('click', videoBGPlay.bind(this, videoBG))
 
                                     this.listenerVideoBGPlay.add(video)
                                 }
                             })
                             .catch(error => {
-                                // Auto-play was prevented
-                                // Show paused UI.
+                                if (!this.listenerVideoBGPlay.has(video)) {
+                                    playArea.addEventListener('click', videoBGPlay.bind(this, videoBG))
+                                    playIcon.addEventListener('click', videoBGPlay.bind(this, videoBG))
+
+                                    this.listenerVideoBGPlay.add(video)
+                                }
                             })
                     }
 
                     // sound icon
                     video.muted = false
-                    soundIcon.children[0].classList.add('webasyst-stories__icon-sound')
-                    soundIcon.children[0].classList.remove('webasyst-stories__icon-sound-none')
+                    soundIcon.children[0].classList.add('sitestories__icon-sound')
+                    soundIcon.children[0].classList.remove('sitestories__icon-sound-none')
                     if (!this.listenerSoundIconVideoMuted.has(soundIcon)) {
                         soundIcon.addEventListener('click', videoMuted)
 
@@ -1123,20 +1207,18 @@ window.addEventListener('load', function() {
         storiesSelector: '[data-stories-section="1"]',
         previewsSelector: '[data-stories-previews="1"]',
         storySelector: '[data-stories-groups="1"]',
-        timer: 1,
-        timerSpeed: '10',
+        timer: 0,
         isMobile: 0,
         swicthHistoryType: 'horizontally' // horizontally, vertically
     }
-    new WebasystStories(webasystStoriesSettings)
+    //new WebasystStories(webasystStoriesSettings)
 
     const webasystStoriesSettings2 = {
         storiesSelector: '[data-stories-section="2"]',
         previewsSelector: '[data-stories-previews="2"]',
         storySelector: '[data-stories-groups="2"]',
-        timer: 1,
-        timerSpeed: '10',
-        isMobile: 1,
+        timer: 0,
+        isMobile: 0,
         swicthHistoryType: 'horizontally' // horizontally, vertically
     }
     new WebasystStories(webasystStoriesSettings2)
