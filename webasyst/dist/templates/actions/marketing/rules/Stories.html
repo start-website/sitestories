@@ -1,0 +1,26 @@
+{strip}
+
+{$_uniqid = uniqid()}
+
+{$_rule_name = ""}
+{if !empty($rule.id)}
+    {$_rule_name = "rules[{$rule.id}]"}
+
+{else}
+    {$_rule_name = "rules[new]"}
+    {if isset($options.ident)}
+        {$_rule_name = "{$_rule_name}[{$options.ident}]"}
+    {/if}
+{/if}
+
+{if !isset($rule.rule_params['stories_id']) && empty($rule.rule_params['stories_id'])}
+    {$stories_id = uniqid()}
+{else}
+    {$stories_id = $rule.rule_params['stories_id']}
+{/if}
+{/strip}
+
+<div class="s-sitestories-rule-section js-sitestories-rule-section" id="js-sitestories-rule-section-{$_uniqid}">
+    <div class="s-section-header" data-content-stories="{$_uniqid}">
+    </div>
+</div>

@@ -1,0 +1,238 @@
+{strip}
+
+{$_uniqid = uniqid()}
+
+{$_rule_name = ""}
+{if !empty($rule.id)}
+    {$_rule_name = "rules[{$rule.id}]"}
+
+{else}
+    {$_rule_name = "rules[new]"}
+    {if isset($options.ident)}
+        {$_rule_name = "{$_rule_name}[{$options.ident}]"}
+    {/if}
+{/if}
+
+{if !isset($rule.rule_params['stories_id']) && empty($rule.rule_params['stories_id'])}
+    {$stories_id = "id{uniqid()}"}
+{else}
+    {$stories_id = $rule.rule_params['stories_id']}
+{/if}
+{/strip}
+
+<div class="s-sitestories-rule-section js-sitestories-rule-section ui-{$ui_version}" id="js-sitestories-rule-section-{$_uniqid}">
+    <input id="id-tool" type="hidden" value="{$rule['id']}">
+    <input id="app-locale" type="hidden" value="{$lang}">
+    <input id="is_premium" type="hidden" value="{$is_premium}">
+    <input id="rules_name" type="hidden" value="{$_rule_name}">
+    <input id="path_public_files" type="hidden" value="{$path_public_files}">
+    <input id="url_public_files" type="hidden" value="{$url_public_files}">
+    <input id="ui_version" type="hidden" value="{$ui_version}">
+    <input class="js-rule-type" type="hidden" name="{$_rule_name}[rule_type]" value="stories">
+    <input class="js-rule-stories-id" type="hidden" name="{$_rule_name}[rule_params][stories_id]" value="{$stories_id}">
+
+    <style>
+        .sitestories-no-scroll {
+            overflow: hidden;
+        }
+        .sitestories-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            z-index: 2000;
+            transition: opacity 200ms ease-in-out;
+            display: none;
+        }
+
+        .sitestories-popup_open {
+            display: block;
+        }
+
+        .sitestories-popup__bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            background-color:rgba(255, 255, 255, 0.8);;
+        }
+        
+        .sitestories-popup__content {
+            width: 800px;
+            word-break: break-word;
+            transition: transform 200ms ease-in-out, opacity 200ms linear, top 200ms linear;
+            transform: translate(0, 0);
+            position: absolute;
+            top: 70%;
+            left: 0;
+            right: 0;
+            bottom: auto;
+            z-index: 10;
+            box-sizing: border-box;
+            background: #fff;
+            width: 600px;
+            max-width: 80%;
+            border-radius: .375rem;
+            box-shadow: 0 0 70px #bbb;
+            margin: auto;
+            padding: 20px;
+            opacity: 0;
+        }
+
+        .sitestories-popup_open .sitestories-popup__content {
+            transform: translate(0, -50%);
+            top: 50%;
+            opacity: 1;
+        }
+
+        .sitestories-popup__content-inner {
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .sitestories-popup__close {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .sitestories-popup__close-icon {
+            font-size: 40px;
+            line-height: 0;
+            cursor: pointer;
+        }
+
+        .ui-1 .sitestrories-info-helper__helper {
+            margin-bottom: 7px;
+        }
+
+        .ui-1 .sitestrories-info-helper__description {
+            font-size: 12px;
+        }
+
+        .ui-1 .alert.info {
+            background-color: beige;
+            border-left: 3px solid darkorange;
+            color: #000;
+        }
+    </style>
+
+    <div class="s-section-header alert" data-content-stories="{$_uniqid}">
+        <div class="s-section-description">[`Short videos and images with text on your website and in search results.`]</div>
+        <ul>
+            <li><a id="sitestories-link-open-popup-quick-start" href="javascript:void(0);">[`How do I start using it?`]</a></li>
+        </ul>
+    </div>
+
+    <div class="s-section-header alert info sitestrories-info-helper">
+        <div class="sitestrories-info-helper__helper">[`Output Helper`]: <b>{literal}{shopSitestoriesPlugin::storiesDisplay('{/literal}{$stories_id}{literal}')}{/literal}</b></div>
+        <div class="sitestrories-info-helper__description"><i>[`It is placed in templates .html inside the &lt;body&gt; tag.`]</i></div>
+    </div>
+
+    {if ($is_premium == 'false')}
+        <div class="alert outlined">
+            <div class="flexbox space-16 full-width">
+                <div class="wide small">
+                    [`Upgrade to the <a href="{$wa_backend_url}installer/store/plugin/shop/sitestories/" target="_blank">premium version</a> to access all the plugin's features.`]
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    <div class="sitestories-popups">
+        {include file="./popups/QuickStart.html"}
+        {include file="./popups/InstructionCSS.html"}
+        {include file="./popups/ShoppingTag.html"}
+    </div>
+    
+
+    <i class="fas fa-spinner wa-animation-spin speed-1000 sitestories-spinner"></i>
+    <div class="js-sitestories-settings-section"></div>
+    
+
+    <script>
+        (function($) {
+            var $wrapper = $("#js-sitestories-rule-section-{$_uniqid}").removeAttr('id');
+            var varsPlugin = {
+                path_public_files: '{$path_public_files}',
+                shop_url: '{$shop_url}',
+                stories_id: '{$stories_id}'
+            };
+    
+            function loadJS(scriptName, sourceName) {
+                return new Promise(function(resolve, reject) {
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = '{$plugin_url}js/' + scriptName + '.js?v={$plugin_version}';
+    
+                    script.onload = function() {
+                        window.sitestoriesSourceLoaded[sourceName] = true;
+                        resolve(script);
+                    }
+                    script.onerror = function() {
+                        reject(script);
+                    }
+    
+                    document.getElementsByTagName('head')[0].appendChild(script);
+                });
+            }
+    
+            function loadCSS(cssName) {
+                var link = document.createElement('link');
+                link.href = '{$plugin_url}css/' + cssName + '.css?v={$plugin_version}';
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                document.getElementsByTagName('head')[0].appendChild(link);
+            }
+    
+    
+            if (!window.sitestoriesSourceLoaded) {
+                window.sitestoriesSourceLoaded = {};
+            }
+    
+            if (!window.sitestoriesSourceLoaded.vueJS) {
+                var loadJsPromise = loadJS('backend', 'backendJS');
+            }
+    
+            {* if (!window.sitestoriesSourceLoaded.backendCSS) {
+                {if ($ui_version == 1)}
+                    loadCSS('backend-ui-1');
+                {/if}
+
+                {if ($ui_version == 2)}
+                    loadCSS('backend');
+                {/if}
+            } *}
+                            
+            
+            if (window.sitestoriesSourceLoaded.vueJS && window.sitestoriesSourceLoaded.backendJS) {
+                //sitestoriesInit('{$_uniqid}', varsPlugin, {$params_json});
+            }
+
+            function addOpenPopupQuickStart($) {
+                $('#sitestories-link-open-popup-quick-start').on('click', function() {
+                    $('#sitestories-popup-quick-start').addClass('sitestories-popup_open');
+                    $('body').addClass('sitestories-no-scroll')
+                });
+            };
+
+            addOpenPopupQuickStart(jQuery);
+
+            var $popup = $('.sitestories-popup');
+            var $iconClose = $popup.find('.sitestories-popup__close-icon');
+            $iconClose.on('click', function() {
+                $popup.removeClass('sitestories-popup_open');
+                $('body').removeClass('sitestories-no-scroll');
+            });
+        
+        })(jQuery);
+
+        $(document).ready(function () {
+            
+        });
+    </script>
+</div>

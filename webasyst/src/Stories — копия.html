@@ -1,0 +1,806 @@
+{strip}
+ssdfsdf 
+
+{$_uniqid = uniqid()}
+
+{$_rule_name = ""}
+{if !empty($rule.id)}
+    {$_rule_name = "rules[{$rule.id}]"}
+
+{else}
+    {$_rule_name = "rules[new]"}
+    {if isset($options.ident)}
+        {$_rule_name = "{$_rule_name}[{$options.ident}]"}
+    {/if}
+{/if}
+
+{if !isset($rule.rule_params['stories_id']) && empty($rule.rule_params['stories_id'])}
+    {$stories_id = uniqid()}
+{else}
+    {$stories_id = $rule.rule_params['stories_id']}
+{/if}
+{/strip}
+
+<div class="s-sitestories-rule-section js-sitestories-rule-section" id="js-sitestories-rule-section-{$_uniqid}">
+    <div class="s-section-header" data-content-stories="{$_uniqid}">
+        <input class="js-rule-type" type="hidden" name="{$_rule_name}[rule_type]" value="rule_stories">
+        <input class="js-rule-stories-id" type="hidden" name="{$_rule_name}[rule_params][stories_id]" value="{$stories_id}">
+        <input id="js-sitestories__group-count" type="hidden" name="{$_rule_name}[rule_params][stories][group_count]" :value="'[' + rule_params['stories'].group_count + ']'">
+
+        <div class="s-section-description">[`Short videos and images on the next site!`]</div>
+        <div class="sitestories-message">
+            <div class="sitestories-message__text">
+                <ul>
+                    <li>[`Output helper`]: <b>{literal}{shopSitestoriesPlugin::storiesDisplay{/literal}({$stories_id})}</b></li>
+                    <li>[`Store`] → [`Storefront`] → [`Templates`] → [`Any html file`]</li>
+                </ul>
+            </div>
+        </div>
+
+        <h5>[`Desktop version`]</h5>
+        <div class="s-fields-wrapper">
+            <div class="field">
+                <div class="name">[`Bottom indent`] (px)</div>
+                <div class="value">
+                    <label>
+                        <input min="0" 
+                            type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][bottom_indent]"
+                            v-model="rule_params['stories'].bottom_indent"
+                        >
+                    </label>
+                    <div class="hint">[`Indent from the bottom of the story group`]</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="name">
+                    [`Preview height`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][preview_height]"
+                            v-model="rule_params['stories'].preview_height"
+                        >
+                    </label>
+                    <div class="hint">[`Group preview height`]</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="name">
+                    [`Preview width`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][width_group]"
+                            v-model="rule_params['stories'].width_group">
+                    </label>
+                    <div class="hint">[`Group preview width`]</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Distance between previews`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][margin_group]"
+                            v-model="rule_params['stories'].margin_group">
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Round corners`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][round_corners]"
+                            v-model="rule_params['stories'].round_corners">
+                    </label>
+                    <div class="hint">[`Rounding the corners of the preview group`]</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Stroke color`]
+                </div>
+                <div class="value">
+                    <label>
+                        <input type="text"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][stroke_color]"
+                            v-model="rule_params['stories'].stroke_color">
+                    </label>
+                    {literal}
+                    <span class="color-replacer"><i class="icon16 color"
+                            :style="{background: rule_params['stories'].stroke_color}"></i></span>
+                    {/literal}
+                    <div class="hint">[`Group preview stroke color`]</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="name">
+                    [`Preview title size`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][preview_name_size]"
+                            v-model="rule_params['stories'].preview_name_size">
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Preview title color`]
+                </div>
+                <div class="value">
+                    <label>
+                        <input type="text"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][preview_name_color]"
+                            v-model="rule_params['stories'].preview_name_color">
+                    </label>
+                    {literal}
+                    <span class="color-replacer"><i class="icon16 color"
+                            :style="{background: rule_params['stories'].preview_name_color}"></i></span>
+                    {/literal}
+                </div>
+            </div>
+
+        </div>
+
+        <h5 class="hidden-fields__heading" style="cursor: pointer;" v-on:click="mobile_fields = !mobile_fields">
+            <i style="position: relative; top: 1px;" class="icon16" :class="mobile_fields ? 'darr' : 'rarr'"></i> [`Mobile version`]
+        </h5>
+        <div class="s-fields-wrapper" v-show="mobile_fields" style="padding-left: 30px;">
+            <div class="field">
+                <div class="name">[`Bottom indent`] (px)</div>
+                <div class="value">
+                    <label>
+                        <input min="0" 
+                            type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][bottom_indent_mobile]"
+                            v-model="rule_params['stories'].bottom_indent_mobile"
+                        >
+                    </label>
+                    <div class="hint">[`Indent from the bottom of the story group`]</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Preview height`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][preview_height_mobile]"
+                            v-model="rule_params['stories'].preview_height_mobile"
+                        >
+                    </label>
+                    <div class="hint">[`Group preview height`]</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Preview width`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][width_group_mobile]"
+                            v-model="rule_params['stories'].width_group_mobile">
+                    </label>
+                    <div class="hint">[`Group preview width`]</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Distance between previews`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][margin_group_mobile]"
+                            v-model="rule_params['stories'].margin_group_mobile">
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Round corners`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][round_corners_mobile]"
+                            v-model="rule_params['stories'].round_corners_mobile">
+                    </label>
+                    <div class="hint">[`Rounding the corners of the preview group`]</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Stroke color`]
+                </div>
+                <div class="value">
+                    <label>
+                        <input type="text"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][stroke_color_mobile]"
+                            v-model="rule_params['stories'].stroke_color_mobile">
+                    </label>
+                    {literal}
+                    <span class="color-replacer"><i class="icon16 color"
+                            :style="{background: rule_params['stories'].stroke_color_mobile}"></i></span>
+                    {/literal}
+                    <div class="hint">[`Group preview stroke color`]</div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="name">
+                    [`Preview title size`] (px)
+                </div>
+                <div class="value">
+                    <label>
+                        <input min="0" type="number"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][preview_name_size_mobile]"
+                            v-model="rule_params['stories'].preview_name_size_mobile">
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="name">
+                    [`Preview title color`]
+                </div>
+                <div class="value">
+                    <label>
+                        <input type="text"
+                            class="input-small"
+                            name="{$_rule_name}[rule_params][stories][preview_name_color_mobile]"
+                            v-model="rule_params['stories'].preview_name_color_mobile">
+                    </label>
+                    {literal}
+                    <span class="color-replacer"><i class="icon16 color"
+                            :style="{background: rule_params['stories'].preview_name_color_mobile}"></i></span>
+                    {/literal}
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="name">
+                    [`Swipe movement`]
+                </div>
+                <div class="value">
+                    <label>
+                        <select name="{$_rule_name}[rule_params][stories][swipe_movement]" v-model="rule_params['stories'].swipe_movement">
+                            <option value="horizontally">[`right-left`]</option>
+                            <option value="vertically">[`up-down`]</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="sitestories__stories-groups">
+                <div class="sitestories__draggable-message">
+                <p class="gray">[`Change the sort order of groups by drag and drop.`]</p>
+                <p class="gray">[`Left click to open group settings.`]</p>
+            </div>
+
+            <draggable class="sitestories__stories-list" :list="rule_params['stories'].group_count" @start="drag=true" @end="drag=false">
+                <div v-for="(group_item, group_index) in rule_params['stories'].group_count" :key="group_item">
+                    
+                    <input type="hidden" :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][group_content_active]'" value="false">
+                    <input type="hidden" :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_count]'" :value="'[' + rule_params['stories']['group_' + group_item]['story_count'] + ']'">
+
+                    <div class="sitestories__group-preview sitestories__stories__bg-image" :style="rule_params['stories']['group_' + group_item]['preview_image'] ? { backgroundImage: 'url(' + path_public_files + '/' + rule_params['stories']['group_' + group_item]['preview_image'] + ')' } : ''" v-show="group_previews_active" v-on:click="activeGroupContent($event, group_item)">
+                        <span class="gray">%% group_index + 1 %%</span>
+
+                        <div class="sitestories__stories__field-group"></div>
+                    </div>
+
+                    <div class="sitestories__group-content" slot="footer" v-show="rule_params['stories']['group_' + group_item]['group_content_active']">
+                        <a href="javascript:void(0);" class="back nowrap" v-on:click.prevent="disableGroupContent($event, group_item)">←&nbsp;[`Back`]</a>
+
+                        <div class="sitestories__fields-group">
+                            <div class="field">
+                                <div class="name">
+                                    <b>[`Group`] %% group_index + 1 %%</b>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="name">
+                                    [`Activate group`]
+                                </div>
+                                <div class="value">
+                                    <label>
+                                        <input type="checkbox" 
+                                            :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][group_active]'" 
+                                            v-model="rule_params['stories']['group_' + group_item]['group_active']"
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="name">
+                                    [`Preview group`]
+                                </div>
+                                <div class="value">
+                                    <label>
+                                        <input type="file"
+                                            v-on:change="loadImage($event, rule_params['stories']['group_' + group_item], 'preview_image')"    
+                                        >
+                                        <input type="hidden"
+                                            :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][preview_image]'"
+                                            v-model="rule_params['stories']['group_' + group_item]['preview_image']"
+                                        >
+                                    </label>
+                                    <div class="hint">[`Acceptable formats: png, jpg, svg, gif, webp`]</div>
+                                    <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['preview_image_format']">[`You are trying to load an invalid format`]</div>
+                                    <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['preview_image_name']">[`Invalid filename, please rename`]</div>
+                                    <div class="image"
+                                        v-if="rule_params['stories']['group_' + group_item]['preview_image']">
+                                        <img class="transparent-sprite"
+                                            :src="path_public_files + '/' + rule_params['stories']['group_' + group_item]['preview_image']">
+                                        <br>
+                                        <a class="small delete-image" v-on:click.prevent="delImage($event, rule_params['stories']['group_' + group_item], 'preview_image')" href="javascript:void(0);">[`Delete`]</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="name">
+                                    [`Preview name`]
+                                </div>
+                                <div class="value">
+                                    <label>
+                                        <input type="text" 
+                                            :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][preview_name]'" 
+                                            v-model="rule_params['stories']['group_' + group_item]['preview_name']"
+                                        >
+                                    </label>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="sitestories__draggable-message">
+                            <p class="gray">[`Change the sort order of stories by drag and drop.`]</p>
+                            <p class="gray">[`Left click to open history settings.`]</p>
+                        </div>
+
+                        <draggable :list="rule_params['stories']['group_' + group_item]['story_count']" @start="drag=true" @end="drag=false">
+                            <div 
+                                class="sitestories__story-button" 
+                                v-for="(story_item, story_index) in rule_params['stories']['group_' + group_item]['story_count']"
+                            >
+
+                                <input type="hidden" :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][story_content_active]'" value="false">
+
+                                <div class="sitestories__story sitestories__stories__bg-image" 
+                                    v-on:click="activeStoryContent($event, group_item, story_item)"
+                                    :style="!rule_params['stories']['group_' + group_item]['story_' + story_item]['story_content_active'] && rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story'] ? { backgroundImage: 'url(' + path_public_files + '/' + rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story'] + ')' } : ''"
+                                >
+                                    <span 
+                                        v-if="rule_params['stories']['group_' + group_item]['group_content_active'] && rule_params['stories']['group_' + group_item]['story_' + story_item]['story_content_active']" 
+                                        class="sitestories__story-name sitestories__close-story" 
+                                        v-on:click="disableStoryContent($event, group_item, story_item)"
+                                    >
+                                        [`Close`] 
+                                        <i class="icon16 close"></i>
+                                    </span>
+                                    <span v-if="rule_params['stories']['group_' + group_item]['group_content_active'] && !rule_params['stories']['group_' + group_item]['story_' + story_item]['story_content_active'] && !rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story']" class="sitestories__story-name">[`Story`] %% story_index + 1 %%</span>
+
+                                    <div class="sitestories__story-content" 
+                                        v-show="rule_params['stories']['group_' + group_item]['group_content_active'] && rule_params['stories']['group_' + group_item]['story_' + story_item]['story_content_active']"
+                                    >
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Title story`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="text"
+                                                        class="input-large"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][story_title]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['story_title']"
+                                                    >
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Description story`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <textarea
+                                                        rows="4"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][story_desc]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['story_desc']"
+                                                        >
+                                                    </textarea>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Text button`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="text"
+                                                        class="input-large"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][text_button]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['text_button']"
+                                                    >
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Button CSS class`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="text"
+                                                        class="input-large"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][css_button]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['css_button']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`CSS class of the button that changes the default appearance of the button`]</div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Link`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="text"
+                                                        class="input-large"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][link]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['link']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`When you click on the history, you will follow this link`]</div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Image story`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="file"
+                                                        v-on:change="loadImage($event, rule_params['stories']['group_' + group_item]['story_' + story_item], 'image_story')"
+                                                    >
+                                                    <input type="hidden" 
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][image_story]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`Acceptable formats: png, jpg, svg, gif, webp`]</div>
+                                                <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story_format']">[`You are trying to load an invalid format`]</div>
+                                                <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story_name']">[`Invalid filename, please rename`]</div>
+                                                <div class="image"
+                                                    v-if="rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story']">
+                                                    <img class="transparent-sprite"
+                                                        :src="path_public_files + '/' + rule_params['stories']['group_' + group_item]['story_' + story_item]['image_story']">
+                                                    <br>
+                                                    <a class="small delete-image" v-on:click.prevent="delImage($event, rule_params['stories']['group_' + group_item]['story_' + story_item], 'image_story')" href="javascript:void(0);">[`Delete`]</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Video story`]
+                                            </div>
+                                            <div class="value">
+                                                <div v-if="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_story']" style="margin-bottom: 20px;">
+                                                    <p style="margin-bottom: 5px;">%% rule_params['stories']['group_' + group_item]['story_' + story_item]['video_story'] %%</p>
+                                                    <a class="small delete-image d-block"  v-on:click.prevent="delImage($event, rule_params['stories']['group_' + group_item]['story_' + story_item], 'video_story')" href="javascript:void(0);">[`Delete`]</a>
+                                                </div>
+                                                <label>
+                                                    <input type="file"
+                                                        v-on:change="loadImage($event, rule_params['stories']['group_' + group_item]['story_' + story_item], 'video_story')"
+                                                    >
+                                                    <input type="hidden" 
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][video_story]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_story']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`If a story video is uploaded, then the story image will not be shown`]
+                                                </div>
+                                                <div class="hint">[`Acceptable formats: ogv, oga, ogx, ogg, mp4, webm, mkv`]
+                                                </div>
+                                                <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_story_format']">[`You are trying to load an invalid format`]</div>
+                                                <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_story_name']">[`Invalid filename, please rename`]</div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Video poster`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="file"
+                                                        v-on:change="loadImage($event, rule_params['stories']['group_' + group_item]['story_' + story_item], 'video_poster')"
+                                                    >
+                                                    <input type="hidden" 
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][video_poster]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_poster']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`Acceptable formats: png, jpg, svg, gif, webp`]</div>
+                                                <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_poster_format']">[`You are trying to load an invalid format`]</div>
+                                                <div class="hint hint-error" v-show="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_poster_name']">[`Invalid filename, please rename`]</div>
+                                                <div class="image"
+                                                    v-if="rule_params['stories']['group_' + group_item]['story_' + story_item]['video_poster']">
+                                                    <img class="transparent-sprite"
+                                                        :src="path_public_files + '/' + rule_params['stories']['group_' + group_item]['story_' + story_item]['video_poster']">
+                                                    <br>
+                                                    <a class="small delete-image" v-on:click.prevent="delImage($event, rule_params['stories']['group_' + group_item]['story_' + story_item], 'video_poster')" href="javascript:void(0);">[`Delete`]</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Darken stories`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="checkbox" 
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][darken_stories]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['darken_stories']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`Dimming the appearance of the story`]</div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Speed`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="number"
+                                                        min="1"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][speed_story]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['speed_story']"
+                                                    >
+                                                </label>
+                                                <div class="hint">[`History change speed in seconds`]</div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`Start`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="date"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][start_date]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['group_content_active'] && rule_params['stories']['group_' + group_item]['story_' + story_item]['start_date']"
+                                                        >
+                                                    <input type="time"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][start_date_time]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['group_content_active'] && rule_params['stories']['group_' + group_item]['story_' + story_item]['start_date_time']"
+                                                    >
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="name">
+                                                [`End`]
+                                            </div>
+                                            <div class="value">
+                                                <label>
+                                                    <input type="date"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][end_date]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['end_date']"
+                                                        >
+                                                    <input type="time"
+                                                        :name="'{$_rule_name}[rule_params][stories][group_' + group_item + '][story_' + story_item + '][end_date_time]'"
+                                                        v-model="rule_params['stories']['group_' + group_item]['story_' + story_item]['end_date_time']"
+                                                    >
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </draggable>
+
+                        <div>
+                            <a class="inline-link js-sitestories-add" href="javascript:void(0);" v-on:click="addStory($event, group_item)">
+                                <i class="icon16 add"></i><b><i>[`Add story`]</i></b>
+                            </a>
+                            <a style="margin-left: 10px;" class="inline-link js-sitestories-del" href="javascript:void(0);" v-on:click="delStory($event, group_item)">
+                                <i class="icon16 delete"></i><b><i>[`Del story`]</i></b>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </draggable>
+        </div>
+        
+        <div class="s-add-sitestories-wrapper" v-if="group_previews_active">
+            <a class="inline-link js-sitestories-add" href="javascript:void(0);" v-on:click="addGroup">
+                <i class="icon16 add"></i><b><i>[`Add group`]</i></b>
+            </a>
+            <a style="margin-left: 10px;" class="inline-link js-sitestories-del" href="javascript:void(0);" v-on:click="delGroup">
+                <i class="icon16 delete"></i><b><i>[`Del group`]</i></b>
+            </a>
+        </div>
+
+        <div class="field" style="margin-top: 60px;">
+            <div class="name">
+                [`Custom CSS`]
+            </div>
+            <div class="value">
+                <label>
+                    <textarea 
+                        name="{$_rule_name}[rule_params][stories][custom_css]"
+                        v-model="rule_params['stories'].custom_css" 
+                        rows="9"
+                        class="sitestories__custom_css"
+                    ></textarea>
+                </label>
+                <div class="start-instruction">
+                    <a class="start-instruction__link-button"
+                        v-on:click.prevent="custom_css_instruction = !custom_css_instruction">
+                        <i class="icon16 start-instruction__icon"
+                            v-bind:class="[custom_css_instruction ? 'darr' : 'rarr']"></i>
+                        <i class="start-instruction__text">[`Instruction`]</i>
+                    </a>
+
+                    <textarea class="start-instruction__message" v-show="custom_css_instruction" readonly rows="30" style="background: cornsilk;">[`Use the plugin CSS class names to change the look. All class names can be viewed in the visual browser editor. Go to the page where the plugin is displayed, hover over the desired element and right-click, click on the "view code" tab (or similar), copy what is in the quotes from the class = "class_name" attribute. Next, paste the class name into the "Custom CSS" field with a period in front of it, followed by curly braces in which to style the element.`]
+
+[`Example`]:
+
+.myclass_name { 
+    color: black;
+    font-size: 13px;
+}
+
+[`To style a specific element, use the "data-stories-section" attribute with the section number followed by the element's class.`]
+
+[`Example`]:
+
+[data-stories-section="1"] .myclass_name { 
+    color: red;
+    font-size: 16px;
+}
+                    </textarea>
+                </div>
+                <div class="hint">[`If you know CSS, add your own styles to change the look of the plugin`]</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    (function($) {
+        var $wrapper = $("#js-sitestories-rule-section-{$_uniqid}").removeAttr('id');
+        var varsPlugin = {
+            path_public_files: '{$path_public_files}',
+            shop_url: '{$shop_url}',
+            stories_id: '{$stories_id}'
+        };
+
+        function loadJS(scriptName, sourceName) {
+            return new Promise(function(resolve, reject) {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = '{$plugin_url}js/' + scriptName + '.js?v={$plugin_version}';
+
+                script.onload = function() {
+                    window.sitestoriesSourceLoaded[sourceName] = true;
+                    resolve(script);
+                }
+                script.onerror = function() {
+                    reject(script);
+                }
+
+                document.getElementsByTagName('head')[0].appendChild(script);
+            });
+        }
+
+        function loadCSS(cssName) {
+            var link = document.createElement('link');
+            link.href = '{$plugin_url}css/' + cssName + '.css?v={$plugin_version}';
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        }
+
+
+        if (!window.sitestoriesSourceLoaded) {
+            window.sitestoriesSourceLoaded = {};
+        }
+
+        if (!window.sitestoriesSourceLoaded.vueJS) {
+            var loadJsPromise = loadJS('vue', 'vueJS');
+
+            loadJsPromise
+                .then(
+                    function(script) {
+                        if (!window.sitestoriesSourceLoaded.backendJS) {
+                            return loadJS('backend', 'backendJS');
+                        }
+                    },
+                    function(script) {
+                        console.log(script + ' not loaded');
+                    }
+                )
+                .then(
+                    function(script) {
+                        if (!window.sitestoriesSourceLoaded.axiosJS) {
+                            return loadJS('axios.min', 'axiosJS');
+                        }
+                    },
+                    function(script) {
+                        console.log(script + ' not loaded');
+                    }
+                )
+                .then(
+                    function(script) {
+                        if (!window.sitestoriesSourceLoaded.sortableJS) {
+                            return loadJS('Sortable.min', 'sortableJS');
+                        }
+                    },
+                    function(script) {
+                        console.log(script + ' not loaded');
+                    }
+                )
+                .then(
+                    function(script) {
+                        if (!window.sitestoriesSourceLoaded.vuedraggableJS) {
+                            return loadJS('vuedraggable.umd.min', 'vuedraggableJS');
+                        }
+                    },
+                    function(script) {
+                        console.log(script + ' not loaded');
+                    }
+                )
+                .then(function(result) {
+                    sitestoriesInit('{$_uniqid}', varsPlugin, {$params_json});
+                })
+        }
+
+        if (!window.sitestoriesSourceLoaded.backendCSS) {
+            loadCSS('backend');
+        }
+                        
+        
+        if (window.sitestoriesSourceLoaded.vueJS && window.sitestoriesSourceLoaded.backendJS) {
+            sitestoriesInit('{$_uniqid}', varsPlugin, {$params_json});
+        }
+        
+    })(jQuery);
+</script>
+</div>

@@ -1,0 +1,1 @@
+export { default as groupStories } from './GroupStories.vue';
