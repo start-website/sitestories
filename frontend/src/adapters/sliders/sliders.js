@@ -1,0 +1,1 @@
+export { SliderSwiperAdapter } from './sliderSwiper';
