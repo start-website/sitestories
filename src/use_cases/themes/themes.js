@@ -1,6 +1,0 @@
-export { default as Instagram } from './instagram/instagram'
-export { default as Facebook } from './facebook/facebook'
-export { default as Samokat } from './samokat/samokat'
-export { default as Vk } from './vk/vk'
-export { default as Whatsapp } from './whatsapp/whatsapp'
-export { default as Amp } from './amp/amp'

@@ -1,1 +1,0 @@
-export { LStorage } from './localStorage'

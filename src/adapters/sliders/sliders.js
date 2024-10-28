@@ -1,1 +1,0 @@
-export { SliderSwiperAdapter } from './sliderSwiper';

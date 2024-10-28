@@ -1,1 +1,0 @@
-export { LStorage as storage } from '../adapters/storages/storages'
