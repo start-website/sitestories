@@ -1,0 +1,63 @@
+@import "../../node_modules/swiper/swiper";
+@import "../../node_modules/swiper/modules/pagination";
+@import "../../node_modules/swiper/modules/navigation";
+@import "../../node_modules/swiper/modules/effect-coverflow-element";
+@import "../../node_modules/animate.css/animate.min";
+
+/**
+* Sitestories styles
+*/
+.sitestories {
+    margin: 0 auto;
+
+    &_no-scroll {
+        height: 100%;
+        overflow: hidden !important;
+        width: 100%;
+        //position: fixed;
+    }
+}
+
+.sitestories * {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.sitestories {
+    &_desktop-only {
+        display: none;
+    }
+
+    &_mobile-only {
+        display: none;
+    }
+}
+
+.sitestories[data-device="desktop"] {
+    .sitestories {
+         &_desktop-only {
+            display: block;
+        }
+    }
+   
+}
+
+.sitestories[data-device="mobile"] {
+    .sitestories {
+        &_mobile-only {
+            display: block;
+        }
+    }
+}
+
+@import '../use_cases/themes/instagram/instagram.scss';
+@import '../use_cases/themes/facebook/facebook.scss';
+@import '../use_cases/themes/samokat/samokat.scss';
+@import '../use_cases/themes/vk/vk.scss';
+@import '../use_cases/themes/whatsapp/whatsapp.scss';
+@import '../use_cases/themes/amp/amp.scss';
+
